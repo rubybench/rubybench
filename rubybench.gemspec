@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.version       = Rubybench::VERSION
   spec.authors       = ["y8"]
   spec.email         = ["info@rubyben.ch"]
-  spec.summary       = %q{Like a rubyspec, but for benchmark}
+  spec.summary       = %q{Like a rubyspec, but for benchmarking}
   spec.description   = %q{Set of cases to measure ruby performance}
   spec.homepage      = "https://rubyben.ch/"
   spec.license       = "MIT"
