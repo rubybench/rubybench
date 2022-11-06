@@ -9,10 +9,11 @@ jobs:
   benchmark:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.1'
-          # bundler-cache: true
-      - run: ruby benchmark/optcarrot.rb
+      - run: ./benchmark.rb
