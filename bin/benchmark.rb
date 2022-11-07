@@ -17,4 +17,3 @@ out = IO.popen(cmd, &:read)
 puts out
 
 # 3. Insert the result and Ruby description
-# 4. git push
