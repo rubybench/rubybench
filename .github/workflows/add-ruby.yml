@@ -1,19 +1,18 @@
-name: optcarrot
+name: ruby
 on:
-  #push:
-  #  branches:
-  #    - master
-  # schedule:
-  #   - cron: '00 15 * * *'
+  push:
+    branches:
+      - master
+  schedule:
+    - cron: '0 * * * *' # every hour
 jobs:
-  benchmark:
+  add:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          submodules: true
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.1'
-      - run: bin/benchmark.rb
+      - run: bin/add-ruby.rb
+      - run: bin/git-push.sh 'Add ruby'
