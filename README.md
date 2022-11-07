@@ -1,6 +1,6 @@
 # Actions
 
-Benchmark runner for [benchmark-driver.github.io](https://benchmark-driver.github.io)
+Benchmark runner for [rubybench.github.io](https://rubybench.github.io)
 
 ## License
 
