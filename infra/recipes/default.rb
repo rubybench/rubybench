@@ -1,5 +1,4 @@
-package 'ruby'
 include_recipe 'docker'
+include_recipe 'rubybench'
 
-# 1. clone rubybench/rubybench
 # 2. set up systemd timer
