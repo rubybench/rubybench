@@ -1,5 +1,6 @@
 include_recipe 'docker'
 include_recipe 'rubybench'
+include_recipe 'scaling_governor'
 
 remote_file '/lib/systemd/system/rubybench.service' do
   mode '600'
