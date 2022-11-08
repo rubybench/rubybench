@@ -15,4 +15,4 @@ jobs:
         with:
           ruby-version: '3.1'
       - run: bin/add-ruby.rb
-      - run: bin/git-push.sh 'Add ruby'
+      - run: bin/git-push.sh 'GitHub Actions: Add ruby'
