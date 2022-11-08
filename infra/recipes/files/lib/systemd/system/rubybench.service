@@ -1,0 +1,11 @@
+[Unit]
+Description=Run rubybench
+
+[Service]
+User=k0kubun
+Type=simple
+ExecStartPre=/bin/bash -c 'cd /home/k0kubun/rubybench; git fetch origin master; git reset --hard remotes/origin/master'
+ExecStart=/home/k0kubun/rubybench/bin/ruby-kai1.sh
+
+[Install]
+WantedBy=default.target
