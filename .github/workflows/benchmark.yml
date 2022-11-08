@@ -13,6 +13,7 @@ jobs:
       matrix:
         benchmark:
           - optcarrot
+          - railsbench
     steps:
       - uses: actions/checkout@v3
         with:
