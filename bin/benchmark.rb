@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
-require 'yaml'
+require 'fileutils'
 require 'json'
+require 'yaml'
 
 benchmark = ARGV.first
 if benchmark.nil?
@@ -62,6 +63,7 @@ end
 results[target_date] = result
 
 # Update results/*.yml
+FileUtils.mkdir_p('results')
 File.open("results/#{benchmark}.yml", "w") do |io|
   results.sort_by(&:first).each do |date, times|
     io.puts "#{date}: #{times.to_json}"
