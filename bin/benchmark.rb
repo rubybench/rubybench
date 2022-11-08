@@ -35,15 +35,20 @@ system(
 at_exit { system('docker', 'rm', '-f', 'rubybench', exception: true) }
 
 # Prepare for running benchmarks
-# TODO: Install dependency for railsbench
+case benchmark
+when 'railsbench'
+  cmd = 'apt-get update && apt install -y libsqlite3-dev xz-utils'
+  system('docker', 'exec', 'rubybench', 'bash', '-c', cmd, exception: true)
+end
 
 # Run benchmarks for VM, MJIT, and YJIT
 result = []
 timeout = 10 * 60 # 10min
 [nil, '--mjit', '--yjit'].each do |opts|
+  env = "env BUNDLE_JOBS=8 #{ENV['YJIT_BENCH_ENV']}"
   cmd = [
     'timeout', timeout.to_s, 'docker', 'exec', 'rubybench',
-    'bash', '-c', "cd /yjit-bench && ./run_benchmarks.rb #{benchmark} -e 'ruby #{opts}'",
+    'bash', '-c', "cd /yjit-bench && #{env} ./run_benchmarks.rb #{benchmark} -e 'ruby #{opts}'",
   ]
   out = IO.popen(cmd, &:read)
   puts out
