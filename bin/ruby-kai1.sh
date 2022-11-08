@@ -13,5 +13,5 @@ git reset --hard origin/master
 # Run benchmarks
 for bench in optcarrot railsbench; do
   bin/benchmark.rb "$bench"
-  bin/git-push.sh "[ruby-kai1] Benchmark ${bench}"
+  bin/git-push.sh "ruby-kai1: Benchmark ${bench}"
 done
