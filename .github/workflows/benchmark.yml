@@ -1,0 +1,26 @@
+name: benchmark
+on:
+  push:
+    branches:
+      - master
+  schedule:
+    - cron: '0 * * * *' # every hour
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        benchmark:
+          - optcarrot
+          - railsbench
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'
+      - run: bin/benchmark.rb ${{ matrix.benchmark }}
+      - run: bin/git-push.sh 'Benchmark ${{ matrix.benchmark }}'
