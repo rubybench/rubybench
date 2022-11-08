@@ -13,10 +13,10 @@ YJIT_BENCH_ENV="WARMUP_ITRS=0 MIN_BENCH_ITRS=1 MIN_BENCH_TIME=0" bin/benchmark.r
 
 ```bash
 # dry-run
-bin/hocho apply -n ruby-sky2
+bin/hocho apply -n ruby-kai1
 
 # apply
-bin/hocho apply ruby-sky2
+bin/hocho apply ruby-kai1
 ```
 
 ## License
