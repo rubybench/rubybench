@@ -1,8 +1,5 @@
 name: ruby
 on:
-  push:
-    branches:
-      - master
   schedule:
     - cron: '0 * * * *' # every hour
 jobs:
