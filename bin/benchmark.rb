@@ -71,4 +71,4 @@ File.open("results/#{benchmark}.yml", "w") do |io|
 end
 
 # Clean up unnecessary files
-system('docker', 'exec', 'rubybench', 'git', '-C', '/yjit-bench', 'clean', '-dfx', exception: true)
+system('docker', 'exec', 'rubybench', 'rm', '-rf', '/yjit-bench/data', exception: true)
