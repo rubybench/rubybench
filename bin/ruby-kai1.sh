@@ -10,7 +10,6 @@ for bench in benchmark/ruby/benchmark/*.rb benchmark/ruby/benchmark/*.yml; do
   benchmark/ruby.rb "$bench"
   bin/git-push.sh "ruby-kai1: Benchmark ruby ${bench}"
 done
-exit
 
 # Run yjit-bench
 for bench in activerecord hexapdf liquid-render mail psych-load railsbench \
