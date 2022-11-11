@@ -1,12 +1,12 @@
 [submodule "yjit-bench"]
-	path = yjit-bench
+	path = benchmark/yjit-bench
 	url = https://github.com/Shopify/yjit-bench
 	shallow = true
 [submodule "benchmark-driver"]
-	path = benchmark-driver
+	path = benchmark/benchmark-driver
 	url = https://github.com/benchmark-driver/benchmark-driver
 	shallow = true
 [submodule "ruby"]
-	path = ruby
+	path = benchmark/ruby
 	url = https://github.com/ruby/ruby
 	shallow = true
