@@ -1,7 +1,6 @@
 #!/bin/bash
 message="$@"
 
-set -x
 git add .
 if ! git diff-index --exit-code --quiet HEAD --; then
   if [[ -n "$GITHUB_ACTION" ]]; then
