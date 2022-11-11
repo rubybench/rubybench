@@ -29,7 +29,7 @@ end
 system('docker', 'rm', '-f', 'rubybench', exception: true, err: File::NULL)
 system(
   'docker', 'run', '-d', '--privileged', '--name', 'rubybench',
-  '-v', "#{Dir.pwd}/benchmark/yjit-bench:/yjit-bench",
+  '-v', "#{Dir.pwd}:/rubybench",
   "rubylang/ruby:master-nightly-#{target_date}-focal",
   'bash', '-c', 'while true; do sleep 100000; done',
   exception: true,
@@ -50,7 +50,7 @@ timeout = 10 * 60 # 10min
   env = "env BUNDLE_JOBS=8 #{ENV['YJIT_BENCH_ENV']}"
   cmd = [
     'timeout', timeout.to_s, 'docker', 'exec', 'rubybench',
-    'bash', '-c', "cd /yjit-bench && #{env} ./run_benchmarks.rb #{benchmark} -e 'ruby #{opts}'",
+    'bash', '-c', "cd /rubybench/benchmark/yjit-bench && #{env} ./run_benchmarks.rb #{benchmark} -e 'ruby #{opts}'",
   ]
   out = IO.popen(cmd, &:read)
   puts out
@@ -72,4 +72,4 @@ File.open("results/yjit-bench/#{benchmark}.yml", "w") do |io|
 end
 
 # Clean up unnecessary files
-system('docker', 'exec', 'rubybench', 'rm', '-rf', '/yjit-bench/data', exception: true)
+system('docker', 'exec', 'rubybench', 'git', '-C', '/rubybench/benchmark/yjit-bench', 'clean', '-dfx', exception: true)

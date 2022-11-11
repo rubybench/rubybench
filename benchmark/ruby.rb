@@ -7,6 +7,8 @@ benchmark_file = ARGV.first
 if benchmark_file.nil?
   abort "Usage: #{$0} BENCHMARK_FILE"
 end
+
+# Make sure the benchmark file exists
 system('test', '-f', "benchmark/ruby/benchmark/#{benchmark_file}", exception: true)
 benchmark = benchmark_file.split('.', 2).first
 
@@ -35,8 +37,7 @@ end
 system('docker', 'rm', '-f', 'rubybench', exception: true, err: File::NULL)
 system(
   'docker', 'run', '-d', '--privileged', '--name', 'rubybench',
-  '-v', "#{Dir.pwd}/benchmark/ruby:/ruby",
-  '-v', "#{Dir.pwd}/benchmark/benchmark-driver:/benchmark-driver",
+  '-v', "#{Dir.pwd}:/rubybench",
   "rubylang/ruby:master-nightly-#{target_date}-focal",
   'bash', '-c', 'while true; do sleep 100000; done',
   exception: true,
@@ -47,7 +48,7 @@ at_exit { system('docker', 'rm', '-f', 'rubybench', exception: true) }
 timeout = 10 * 60 # 10min
 cmd = [
   'timeout', timeout.to_s, 'docker', 'exec', 'rubybench', 'bash', '-c',
-  "cd /ruby/benchmark && /benchmark-driver/exe/benchmark-driver #{benchmark_file} --output=simple --output-humanize=false",
+  "cd /rubybench/benchmark/ruby/benchmark && /rubybench/benchmark/benchmark-driver/exe/benchmark-driver #{benchmark_file} --output=simple --output-humanize=false",
 ]
 out = IO.popen(cmd, &:read)
 puts out
@@ -74,3 +75,6 @@ name_results.each do |name, results|
     end
   end
 end
+
+# Clean up unnecessary files
+system('docker', 'exec', 'rubybench', 'git', '-C', '/rubybench/benchmark/ruby', 'clean', '-dfx', exception: true)
