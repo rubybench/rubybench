@@ -63,11 +63,11 @@ timeout = 10 * 60 # 10min
 end
 results[target_date] = result
 
-# Update results/*.yml
-FileUtils.mkdir_p('results')
+# Update results/yjit-bench/*.yml
+FileUtils.mkdir_p('results/yjit-bench')
 File.open("results/yjit-bench/#{benchmark}.yml", "w") do |io|
-  results.sort_by(&:first).each do |date, times|
-    io.puts "#{date}: #{times.to_json}"
+  results.sort_by(&:first).each do |date, values|
+    io.puts "#{date}: #{values.to_json}"
   end
 end
 
