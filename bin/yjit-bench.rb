@@ -26,7 +26,7 @@ if target_date.nil?
 end
 
 # Start a container
-system('docker', 'rm', '-f', 'rubybench', exception: true)
+system('docker', 'rm', '-f', 'rubybench', exception: true, err: File::NULL)
 system(
   'docker', 'run', '-d', '--privileged', '--name', 'rubybench',
   '-v', "#{Dir.pwd}/benchmark/yjit-bench:/yjit-bench",
