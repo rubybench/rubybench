@@ -9,8 +9,8 @@ if benchmark.nil?
 end
 
 # Load past benchmark results
-if File.exist?("results/#{benchmark}.yml")
-  results = YAML.load_file("results/#{benchmark}.yml")
+if File.exist?("results/yjit-bench/#{benchmark}.yml")
+  results = YAML.load_file("results/yjit-bench/#{benchmark}.yml")
 else
   results = {}
 end
@@ -28,7 +28,7 @@ end
 # Start a container
 system(
   'docker', 'run', '-d', '--privileged', '--name', 'rubybench',
-  '-v', "#{Dir.pwd}/yjit-bench:/yjit-bench",
+  '-v', "#{Dir.pwd}/benchmark/yjit-bench:/yjit-bench",
   "rubylang/ruby:master-nightly-#{target_date}-focal",
   'bash', '-c', 'while true; do sleep 100000; done',
   exception: true,
@@ -64,7 +64,7 @@ results[target_date] = result
 
 # Update results/*.yml
 FileUtils.mkdir_p('results')
-File.open("results/#{benchmark}.yml", "w") do |io|
+File.open("results/yjit-bench/#{benchmark}.yml", "w") do |io|
   results.sort_by(&:first).each do |date, times|
     io.puts "#{date}: #{times.to_json}"
   end
