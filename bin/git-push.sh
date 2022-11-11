@@ -3,7 +3,7 @@ message="$@"
 
 set -x
 git add .
-if ! git diff-index --quiet HEAD --; then
+if ! git diff-index --exit-code --quiet HEAD --; then
   if [[ -n "$GITHUB_ACTION" ]]; then
     git config --global user.email "noreply@github.com"
     git config --global user.name "GitHub"
