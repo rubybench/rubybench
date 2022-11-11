@@ -69,3 +69,6 @@ File.open("results/#{benchmark}.yml", "w") do |io|
     io.puts "#{date}: #{times.to_json}"
   end
 end
+
+# Clean up unnecessary files
+system('docker', 'exec', 'rubybench', 'git', '-C', '/yjit-bench', 'clean', '-dfx', exception: true)
