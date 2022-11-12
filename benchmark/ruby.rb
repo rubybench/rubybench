@@ -15,7 +15,7 @@ benchmark = benchmark_file.split('.', 2).first
 # Load past benchmark results
 name_results = Hash.new { |h, k| h[k] = {} }
 Dir.glob("results/ruby/#{benchmark}/**/*.yml").each do |file|
-  name = file.remove_suffix("results/ruby/#{benchmark}/").delete_suffix('.yml') # name could include /
+  name = file.delete_suffix("results/ruby/#{benchmark}/").delete_suffix('.yml') # name could include /
   name_results[name] = YAML.load_file(file)
 end
 
