@@ -14,8 +14,8 @@ benchmark = benchmark_file.split('.', 2).first
 
 # Load past benchmark results
 name_results = Hash.new { |h, k| h[k] = {} }
-Dir.glob("results/ruby/#{benchmark}/*.yml").each do |file|
-  name = File.basename(file).delete_suffix('.yml')
+Dir.glob("results/ruby/#{benchmark}/**/*.yml").each do |file|
+  name = file.remove_suffix("results/ruby/#{benchmark}/").delete_suffix('.yml') # name could include /
   name_results[name] = YAML.load_file(file)
 end
 
@@ -67,9 +67,10 @@ else
 end
 
 # Update results/ruby/*/*.yml
-FileUtils.mkdir_p("results/ruby/#{benchmark}")
 name_results.each do |name, results|
-  File.open("results/ruby/#{benchmark}/#{name}.yml", "w") do |io|
+  path = "results/ruby/#{benchmark}/#{name}.yml"
+  FileUtils.mkdir_p(File.dirname(path)) # do this here since name could include /
+  File.open(path, "w") do |io|
     results.sort_by(&:first).each do |date, values|
       io.puts "#{date}: #{values.to_json}"
     end
