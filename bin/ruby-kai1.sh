@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euxo pipefail
+set -uxo pipefail # not using -e to minimize impact of bad benchmarks
 
 rubybench=$(cd $(dirname "$0"); cd ..; pwd)
 cd "$rubybench"
