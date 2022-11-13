@@ -10,3 +10,7 @@
 	path = benchmark/ruby
 	url = https://github.com/ruby/ruby
 	shallow = true
+[submodule "benchmark/ruby-method-benchmarks"]
+	path = benchmark/ruby-method-benchmarks
+	url = https://github.com/benchmark-driver/ruby-method-benchmarks
+	shallow = true
