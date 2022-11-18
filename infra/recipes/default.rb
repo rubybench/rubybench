@@ -1,3 +1,4 @@
+include_recipe 'users'
 include_recipe 'docker'
 include_recipe 'rubybench'
 include_recipe 'scaling_governor'

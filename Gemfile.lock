@@ -29,10 +29,9 @@ GEM
 
 PLATFORMS
   arm64-darwin-22
-  x86_64-linux
 
 DEPENDENCIES
   hocho
 
 BUNDLED WITH
-   2.3.22
+   2.4.0.dev
