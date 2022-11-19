@@ -21,6 +21,10 @@ bin/hocho apply ruby-kai1
 5. That script runs a benchmark, updates YAMLs, and pushes it with bin/git-push.sh.
 6. As soon as the YAML is pushed, https://github.com/rubybench/rubybench.github.io sees it through GitHub's raw bob.
 
+## Useful commands
+
+* Stopping the timer (to avoid interferences): `sudo systemctl stop rubybench.timer`
+
 ## License
 
 MIT License
