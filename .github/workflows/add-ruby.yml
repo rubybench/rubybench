@@ -1,6 +1,6 @@
 name: ruby
 on:
-  push:
+  push: [master]
   workflow_trigger:
   schedule:
     - cron: '0 * * * *' # every hour
