@@ -2,9 +2,9 @@ name: ruby
 on:
   push:
     branches: [master]
-  workflow_trigger:
   schedule:
     - cron: '0 * * * *' # every hour
+  workflow_dispatch:
 jobs:
   add:
     runs-on: ubuntu-latest
