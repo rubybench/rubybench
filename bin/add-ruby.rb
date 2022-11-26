@@ -10,7 +10,7 @@ end
 #
 # So target_dates and rubies.yml have every date that is >= 20220923.
 target_dates = []
-time = Time.now.utc
+time = Time.now.getlocal("+09:00") # workaround until ruby-docker-images fixes it
 while (date = to_date(time)) >= 20220923
   target_dates << date
   time -= 24 * 60 * 60
