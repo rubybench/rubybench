@@ -4,7 +4,7 @@ Description=Run rubybench
 [Service]
 User=k0kubun
 Type=simple
-ExecStartPre=/bin/bash -c 'cd /home/k0kubun/rubybench; git fetch origin master; git reset --hard remotes/origin/master; git submodule init; git submodule update'
+ExecStartPre=/bin/bash -c 'cd /home/k0kubun/rubybench; git fetch origin master; git reset --hard remotes/origin/master; git submodule init; git submodule foreach git reset --hard HEAD; git submodule update'
 ExecStart=/home/k0kubun/rubybench/bin/ruby-kai1.sh
 
 [Install]
