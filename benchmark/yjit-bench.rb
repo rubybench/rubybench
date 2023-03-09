@@ -46,7 +46,7 @@ end
 # Run benchmarks for VM, MJIT, and YJIT
 result = []
 timeout = 10 * 60 # 10min
-[nil, '--mjit', '--yjit'].each do |opts|
+[nil, '--yjit', '--rjit'].each do |opts|
   env = "env BUNDLE_JOBS=8 #{ENV['YJIT_BENCH_ENV']}"
   cmd = [
     'timeout', timeout.to_s, 'docker', 'exec', 'rubybench',

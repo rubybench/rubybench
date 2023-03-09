@@ -5,13 +5,11 @@ def to_date(time)
   time.year * 10000 + time.month * 100 + time.day
 end
 
-# 20220923 was the first image that supported YJIT, thanks to:
-# https://github.com/ruby/ruby-docker-images/pull/40
-#
+# 20230307 was the first version that added RJIT.
 # So target_dates and rubies.yml have every date that is >= 20220923.
 target_dates = []
 time = Time.now.getlocal("+09:00") # workaround until ruby-docker-images fixes it
-while (date = to_date(time)) >= 20220923
+while (date = to_date(time)) >= 20230307
   target_dates << date
   time -= 24 * 60 * 60
 end
