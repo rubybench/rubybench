@@ -5,8 +5,8 @@ rubybench=$(cd $(dirname "$0"); cd ..; pwd)
 cd "$rubybench"
 
 # Run yjit-bench
-for bench in activerecord hexapdf liquid-render mail psych-load railsbench ruby-lsp \
-             binarytrees chunky_png erubi erubi_rails etanni fannkuchredux lee nbody optcarrot rubykon \
+for bench in activerecord hexapdf liquid-render mail psych-load railsbench ruby-lsp sequel liquid-c \
+             binarytrees chunky_png erubi erubi_rails etanni fannkuchredux ruby-json lee nbody optcarrot rubykon \
              30k_ifelse 30k_methods cfunc_itself fib getivar keyword_args respond_to setivar str_concat; do
   benchmark/yjit-bench.rb "$bench"
 done
