@@ -37,9 +37,8 @@ system(
 at_exit { system('docker', 'rm', '-f', 'rubybench', exception: true) }
 
 # Prepare for running benchmarks
-case benchmark
-when 'activerecord', 'erubi', 'erubi_rails', 'railsbench'
-  cmd = 'apt-get update && apt install -y libsqlite3-dev xz-utils'
+if File.exist?("benchmark/yjit-bench/benchmarks/#{benchmark}/Gemfile")
+  cmd = 'apt-get update && apt install -y libsqlite3-dev pkg-config xz-utils'
   system('docker', 'exec', 'rubybench', 'bash', '-c', cmd, exception: true)
 end
 
