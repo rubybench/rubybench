@@ -3,9 +3,8 @@ on:
   push:
     branches: [master]
   schedule:
-    # ruby-docker-images uses `cron: "0 17 * * *"`
-    # https://github.com/ruby/ruby-docker-images/blob/master/.circleci/config.yml
-    - cron: '0,5,10,15,20,30,40,50 17 * * *'
+    # ruby-docker-images uses Start Time: 16:00 UTC
+    - cron: '0,5,10,15,20,30,40,50 16 * * *'
   workflow_dispatch:
 jobs:
   add:
