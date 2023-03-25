@@ -7,7 +7,7 @@ cd "$rubybench"
 # Run yjit-bench
 for bench in activerecord hexapdf liquid-render mail psych-load railsbench ruby-lsp sequel liquid-c \
              binarytrees chunky_png erubi erubi_rails etanni fannkuchredux ruby-json lee nbody optcarrot rubykon \
-             30k_ifelse 30k_methods cfunc_itself fib getivar keyword_args respond_to setivar str_concat; do
+             30k_ifelse 30k_methods cfunc_itself fib getivar keyword_args respond_to setivar setivar_object setivar_young_object str_concat throw; do
   benchmark/yjit-bench.rb "$bench"
 done
 bin/git-push.sh "ruby-kai1: Benchmark yjit-bench"
