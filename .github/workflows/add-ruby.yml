@@ -3,8 +3,8 @@ on:
   push:
     branches: [master]
   schedule:
-    # ruby-docker-images uses Start Time: 16:00 UTC
-    - cron: '0,5,10,15,20,30,40,50 16 * * *'
+    # ruby-docker-images uses Start Time: 14:00 UTC
+    - cron: '0,5,10,15,20,30,40,50 14 * * *'
   workflow_dispatch:
 jobs:
   add:
