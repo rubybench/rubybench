@@ -31,7 +31,7 @@ def format_float(float)
   ('%0.2f' % float).to_f
 end
 
-benchmarks.each do |benchmark, metadata|
+benchmarks.sort_by(&:first).each do |benchmark, metadata|
   results = YAML.load_file(File.expand_path("../results/yjit-bench/#{benchmark}.yml", __dir__))
   category = metadata.fetch(:category, 'other').to_sym
 
