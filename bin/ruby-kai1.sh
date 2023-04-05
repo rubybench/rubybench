@@ -10,6 +10,7 @@ for bench in activerecord hexapdf liquid-render mail psych-load railsbench ruby-
              30k_ifelse 30k_methods cfunc_itself fib getivar keyword_args respond_to setivar setivar_object setivar_young_object str_concat throw; do
   benchmark/yjit-bench.rb "$bench"
 done
+bin/dashboard.rb
 bin/git-push.sh "ruby-kai1: Benchmark yjit-bench"
 
 # Ruby ruby/ruby
