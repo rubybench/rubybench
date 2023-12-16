@@ -3,7 +3,7 @@ require 'fileutils'
 require 'json'
 require 'yaml'
 
-def run_benchmarks(benchmark)
+def run_benchmark(benchmark)
   # Load past benchmark results
   if File.exist?("results/yjit-bench/#{benchmark}.yml")
     results = YAML.load_file("results/yjit-bench/#{benchmark}.yml")
@@ -74,7 +74,9 @@ end
 
 benchmark = ARGV.first
 if benchmark.nil?
-  abort "Usage: #{$0} BENCHMARK"
+  YAML.load_file('benchmark/yjit-bench/benchmarks.yml').each_key do |benchmark|
+    run_benchmark(benchmark)
+  end
+else
+  run_benchmark(benchmark)
 end
-
-run_benchmarks(benchmark)
