@@ -88,7 +88,7 @@ class YJITBench
     # Prepare for running benchmarks
     if File.exist?("benchmark/yjit-bench/benchmarks/#{benchmark}/Gemfile")
       unless @updated_containers.include?(container)
-        cmd = 'apt-get update && apt install -y libsqlite3-dev pkg-config xz-utils'
+        cmd = 'apt-get update && apt install -y libsqlite3-dev libyaml-dev pkg-config xz-utils'
         system('docker', 'exec', container, 'bash', '-c', cmd, exception: true)
         @updated_containers << container
       end
