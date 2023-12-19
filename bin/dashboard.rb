@@ -38,7 +38,7 @@ benchmarks.sort_by(&:first).each do |benchmark, metadata|
   no_jit, yjit, rjit = results[ruby]
   dashboard[category][:no_jit] << format_float(no_jit / no_jit)
   dashboard[category][:yjit] << format_float(no_jit / yjit)
-  dashboard[category][:rjit] << format_float(no_jit / rjit)
+  dashboard[category][:rjit] << format_float(no_jit / rjit) if rjit
   dashboard[category][:benchmarks] << benchmark.to_s
 end
 
