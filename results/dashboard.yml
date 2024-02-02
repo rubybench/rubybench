@@ -25,15 +25,19 @@ other:
   no_jit:
   - 1.0
   - 1.0
+  - 1.0
   yjit:
   - 2.24
   - 1.24
+  - 1.15
   rjit:
   - 1.91
   - 0.81
+  - 0.87
   benchmarks:
   - binarytrees
   - erubi
+  - etanni
 micro:
   no_jit: []
   yjit: []
