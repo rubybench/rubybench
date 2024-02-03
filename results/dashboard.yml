@@ -87,7 +87,11 @@ other:
   - sudoku
   - tinygql
 micro:
-  no_jit: []
-  yjit: []
-  rjit: []
-  benchmarks: []
+  no_jit:
+  - 1.0
+  yjit:
+  - 7.14
+  rjit:
+  - 6.66
+  benchmarks:
+  - 30k_ifelse
