@@ -5,18 +5,22 @@ headline:
   - 1.0
   - 1.0
   - 1.0
+  - 1.0
   yjit:
   - 1.87
   - 2.06
   - 1.48
+  - 1.9
   rjit:
   - 1.67
   - 1.55
   - 1.12
+  - 0.0
   benchmarks:
   - chunky-png
   - hexapdf
   - mail
+  - rubocop
 other:
   no_jit: []
   yjit: []
