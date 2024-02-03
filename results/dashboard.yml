@@ -4,15 +4,19 @@ headline:
   no_jit:
   - 1.0
   - 1.0
+  - 1.0
   yjit:
   - 1.87
   - 2.06
+  - 1.48
   rjit:
   - 1.67
   - 1.55
+  - 1.12
   benchmarks:
   - chunky-png
   - hexapdf
+  - mail
 other:
   no_jit: []
   yjit: []
