@@ -89,9 +89,13 @@ other:
 micro:
   no_jit:
   - 1.0
+  - 1.0
   yjit:
   - 7.14
+  - 9.08
   rjit:
   - 6.66
+  - 8.55
   benchmarks:
   - 30k_ifelse
+  - 30k_methods
