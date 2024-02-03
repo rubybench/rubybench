@@ -22,10 +22,14 @@ headline:
   - mail
   - rubocop
 other:
-  no_jit: []
-  yjit: []
-  rjit: []
-  benchmarks: []
+  no_jit:
+  - 1.0
+  yjit:
+  - 2.28
+  rjit:
+  - 1.91
+  benchmarks:
+  - binarytrees
 micro:
   no_jit: []
   yjit: []
