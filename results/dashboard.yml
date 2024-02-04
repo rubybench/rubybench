@@ -24,12 +24,16 @@ headline:
 other:
   no_jit:
   - 1.0
+  - 1.0
   yjit:
   - 2.19
+  - 1.22
   rjit:
   - 1.92
+  - 0.86
   benchmarks:
   - binarytrees
+  - erubi
 micro:
   no_jit: []
   yjit: []
