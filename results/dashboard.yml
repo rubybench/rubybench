@@ -27,21 +27,25 @@ other:
   - 1.0
   - 1.0
   - 1.0
+  - 1.0
   yjit:
   - 2.19
   - 1.22
   - 1.15
   - 3.64
+  - 1.55
   rjit:
   - 1.92
   - 0.86
   - 0.85
   - 2.64
+  - 1.33
   benchmarks:
   - binarytrees
   - erubi
   - etanni
   - fannkuchredux
+  - lee
 micro:
   no_jit: []
   yjit: []
