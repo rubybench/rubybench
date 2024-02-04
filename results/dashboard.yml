@@ -90,12 +90,16 @@ micro:
   no_jit:
   - 1.0
   - 1.0
+  - 1.0
   yjit:
   - 7.14
   - 9.08
+  - 5.02
   rjit:
   - 6.66
   - 8.55
+  - 3.38
   benchmarks:
   - 30k_ifelse
   - 30k_methods
+  - cfunc_itself
