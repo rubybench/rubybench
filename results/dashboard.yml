@@ -32,6 +32,7 @@ other:
   - 1.0
   - 1.0
   - 1.0
+  - 1.0
   yjit:
   - 2.19
   - 1.22
@@ -42,6 +43,7 @@ other:
   - 4.1
   - 1.27
   - 1.14
+  - 2.5
   rjit:
   - 1.92
   - 0.86
@@ -52,6 +54,7 @@ other:
   - 3.08
   - 1.1
   - 1.18
+  - 1.95
   benchmarks:
   - binarytrees
   - erubi
@@ -62,6 +65,7 @@ other:
   - optcarrot
   - rack
   - ruby-json
+  - rubykon
 micro:
   no_jit: []
   yjit: []
