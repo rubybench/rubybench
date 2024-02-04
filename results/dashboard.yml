@@ -1,105 +1,17 @@
 ---
 date: '2024-02-03'
 headline:
-  no_jit:
-  - 1.0
-  - 1.0
-  - 1.0
-  - 1.0
-  yjit:
-  - 1.87
-  - 2.06
-  - 1.48
-  - 1.9
-  rjit:
-  - 1.67
-  - 1.55
-  - 1.12
-  - 0.0
-  benchmarks:
-  - chunky-png
-  - hexapdf
-  - mail
-  - rubocop
+  no_jit: []
+  yjit: []
+  rjit: []
+  benchmarks: []
 other:
-  no_jit:
-  - 1.0
-  - 1.0
-  - 1.0
-  - 1.0
-  - 1.0
-  - 1.0
-  - 1.0
-  - 1.0
-  - 1.0
-  - 1.0
-  - 1.0
-  - 1.0
-  - 1.0
-  - 1.0
-  - 1.0
-  yjit:
-  - 2.28
-  - 2.45
-  - 1.2
-  - 1.14
-  - 3.69
-  - 1.6
-  - 2.48
-  - 3.09
-  - 4.72
-  - 4.07
-  - 1.3
-  - 1.16
-  - 2.46
-  - 3.77
-  - 2.05
-  rjit:
-  - 1.91
-  - 1.76
-  - 0.86
-  - 0.86
-  - 2.63
-  - 1.35
-  - 2.01
-  - 2.09
-  - 2.87
-  - 3.16
-  - 1.14
-  - 1.17
-  - 1.92
-  - 2.61
-  - 1.66
-  benchmarks:
-  - binarytrees
-  - blurhash
-  - erubi
-  - etanni
-  - fannkuchredux
-  - lee
-  - matmul
-  - nbody
-  - nqueens
-  - optcarrot
-  - rack
-  - ruby-json
-  - rubykon
-  - sudoku
-  - tinygql
+  no_jit: []
+  yjit: []
+  rjit: []
+  benchmarks: []
 micro:
-  no_jit:
-  - 1.0
-  - 1.0
-  - 1.0
-  yjit:
-  - 7.14
-  - 9.08
-  - 5.02
-  rjit:
-  - 6.66
-  - 8.55
-  - 3.38
-  benchmarks:
-  - 30k_ifelse
-  - 30k_methods
-  - cfunc_itself
+  no_jit: []
+  yjit: []
+  rjit: []
+  benchmarks: []
