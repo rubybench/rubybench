@@ -30,6 +30,7 @@ other:
   - 1.0
   - 1.0
   - 1.0
+  - 1.0
   yjit:
   - 2.19
   - 1.22
@@ -38,6 +39,7 @@ other:
   - 1.55
   - 3.02
   - 4.1
+  - 1.27
   rjit:
   - 1.92
   - 0.86
@@ -46,6 +48,7 @@ other:
   - 1.33
   - 2.1
   - 3.08
+  - 1.1
   benchmarks:
   - binarytrees
   - erubi
@@ -54,6 +57,7 @@ other:
   - lee
   - nbody
   - optcarrot
+  - rack
 micro:
   no_jit: []
   yjit: []
