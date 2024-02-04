@@ -36,12 +36,14 @@ other:
   - 1.0
   - 1.0
   - 1.0
+  - 1.0
   yjit:
   - 2.19
   - 1.22
   - 1.15
   - 3.64
   - 1.55
+  - 2.66
   - 3.02
   - 4.73
   - 4.1
@@ -56,6 +58,7 @@ other:
   - 0.85
   - 2.64
   - 1.33
+  - 2.16
   - 2.1
   - 2.89
   - 3.08
@@ -70,6 +73,7 @@ other:
   - etanni
   - fannkuchredux
   - lee
+  - matmul
   - nbody
   - nqueens
   - optcarrot
