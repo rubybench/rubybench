@@ -91,15 +91,19 @@ micro:
   - 1.0
   - 1.0
   - 1.0
+  - 1.0
   yjit:
   - 7.18
   - 8.74
   - 5.04
+  - 7.56
   rjit:
   - 6.69
   - 8.06
   - 3.39
+  - 3.88
   benchmarks:
   - 30k_ifelse
   - 30k_methods
   - cfunc_itself
+  - fib
