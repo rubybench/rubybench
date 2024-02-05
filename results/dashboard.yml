@@ -1,10 +1,14 @@
 ---
 date: '2024-02-04'
 headline:
-  no_jit: []
-  yjit: []
-  rjit: []
-  benchmarks: []
+  no_jit:
+  - 1.0
+  yjit:
+  - 1.87
+  rjit:
+  - 1.65
+  benchmarks:
+  - chunky-png
 other:
   no_jit: []
   yjit: []
