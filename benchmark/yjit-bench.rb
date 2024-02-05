@@ -6,7 +6,6 @@ require 'yaml'
 class YJITBench
   def initialize
     @started_containers = []
-    @updated_containers = []
   end
 
   def run_benchmark(benchmark)
@@ -82,16 +81,9 @@ class YJITBench
         'bash', '-c', 'while true; do sleep 100000; done',
         exception: true,
       )
+      cmd = 'apt-get update && apt install -y build-essential git libsqlite3-dev libyaml-dev pkg-config xz-utils'
+      system('docker', 'exec', container, 'bash', '-c', cmd, exception: true)
       @started_containers << container
-    end
-
-    # Prepare for running benchmarks
-    if File.exist?("benchmark/yjit-bench/benchmarks/#{benchmark}/Gemfile")
-      unless @updated_containers.include?(container)
-        cmd = 'apt-get update && apt install -y build-essential libsqlite3-dev libyaml-dev pkg-config xz-utils'
-        system('docker', 'exec', container, 'bash', '-c', cmd, exception: true)
-        @updated_containers << container
-      end
     end
 
     container
