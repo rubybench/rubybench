@@ -3,12 +3,16 @@ date: '2024-02-04'
 headline:
   no_jit:
   - 1.0
+  - 1.0
   yjit:
   - 1.87
+  - 1.96
   rjit:
   - 1.65
+  - 1.51
   benchmarks:
   - chunky-png
+  - hexapdf
 other:
   no_jit: []
   yjit: []
