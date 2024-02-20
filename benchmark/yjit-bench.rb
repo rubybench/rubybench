@@ -61,9 +61,9 @@ class YJITBench
   end
 
   def shutdown
-    #@started_containers.each do |container|
-    #  system('docker', 'rm', '-f', container, exception: true)
-    #end
+    @started_containers.each do |container|
+      system('docker', 'rm', '-f', container, exception: true)
+    end
   end
 
   private
