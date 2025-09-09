@@ -16,21 +16,25 @@ end
 
 # Find target_date from target_dates that is on Docker Hub but not in rubies.yml
 rubies = YAML.load_file('rubies.yml')
-target_date = target_dates.find do |date|
+target_dates.select! do |date|
   next if rubies.key?(date)
   cmd = ['docker', 'pull', "ghcr.io/ruby/ruby:master-#{date}"]
   puts "+ #{cmd.join(' ')}"
   system(*cmd)
 end
-if target_date.nil?
+if target_dates.empty?
   puts "Every Ruby version already exists in rubies.yml"
   return
 end
 
-# Add target_date's ruby -v to rubies
-output = IO.popen(['docker', 'run', '--rm', "ghcr.io/ruby/ruby:master-#{target_date}", 'ruby', '-v'], &:read)
-abort "Failed to run `ruby -v`: #{output}" unless $?.success?
-rubies[target_date] = output.chomp
+target_dates.each do |target_date|
+  # Add target_date's ruby -v to rubies
+  cmd = ['docker', 'run', '--rm', "ghcr.io/ruby/ruby:master-#{target_date}", 'ruby', '-v']
+  puts "+ #{cmd.join(' ')}"
+  output = IO.popen(cmd, &:read)
+  abort "Failed to run `ruby -v`: #{output}" unless $?.success?
+  rubies[target_date] = output.chomp
+end
 
 # Update rubies.yml
 File.write('rubies.yml', YAML.dump(rubies.sort_by(&:first).to_h))
