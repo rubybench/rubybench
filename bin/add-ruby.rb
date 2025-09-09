@@ -17,7 +17,10 @@ end
 # Find target_date from target_dates that is on Docker Hub but not in rubies.yml
 rubies = YAML.load_file('rubies.yml')
 target_date = target_dates.find do |date|
-  !rubies.key?(date) && system('docker', 'pull', "ghcr.io/ruby/ruby:master-#{date}")
+  next if rubies.key?(date)
+  cmd = ['docker', 'pull', "ghcr.io/ruby/ruby:master-#{date}"]
+  puts "+ #{cmd.join(' ')}"
+  system(*cmd)
 end
 if target_date.nil?
   puts "Every Ruby version already exists in rubies.yml"
