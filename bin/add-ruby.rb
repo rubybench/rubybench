@@ -29,7 +29,7 @@ end
 
 target_dates.each do |target_date|
   # Add target_date's ruby -v to rubies
-  cmd = ['docker', 'run', '--rm', "ghcr.io/ruby/ruby:master-#{target_date}", 'ruby', '-v']
+  cmd = ['docker', 'run', '--rm', "ghcr.io/ruby/ruby:master-#{target_date}", 'ruby', '-e', 'print RUBY_REVISION']
   puts "+ #{cmd.join(' ')}"
   output = IO.popen(cmd, &:read)
   abort "Failed to run `ruby -v`: #{output}" unless $?.success?
