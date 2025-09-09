@@ -1,15 +1,24 @@
 #!/usr/bin/env ruby
 require 'yaml'
 
+# 20250717 was the first version where ZJIT started working on yjit-bench.
+MIN_DATE = 20250717
+
 def to_date(time)
   time.year * 10000 + time.month * 100 + time.day
 end
 
-# 20250717 was the first version where ZJIT started working on yjit-bench.
-# target_dates and rubies.yml have every date that is >= 20250717.
+if ARGV.include?('--all')
+  # If `--all` is given, fill all missing dates since MIN_DATE
+  min_date = MIN_DATE
+else
+  # Otherwise, check only the last 7 days
+  min_date = to_date(Time.now.utc - 7 * 24 * 60 * 60)
+end
+
 target_dates = []
 time = Time.now.utc
-while (date = to_date(time)) >= 20250717
+while (date = to_date(time)) >= min_date
   target_dates << date
   time -= 24 * 60 * 60
 end
