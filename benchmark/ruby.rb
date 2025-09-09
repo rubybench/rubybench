@@ -38,7 +38,7 @@ system('docker', 'rm', '-f', 'rubybench', exception: true, err: File::NULL)
 system(
   'docker', 'run', '-d', '--privileged', '--name', 'rubybench',
   '-v', "#{Dir.pwd}:/rubybench",
-  "rubylang/ruby:master-nightly-#{target_date}-focal",
+  "rubylang/ruby:master-#{target_date}",
   'bash', '-c', 'while true; do sleep 100000; done',
   exception: true,
 )

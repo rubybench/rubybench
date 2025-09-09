@@ -5,10 +5,10 @@ def to_date(time)
   time.year * 10000 + time.month * 100 + time.day
 end
 
-# 20230307 was the first version that added RJIT.
-# So target_dates and rubies.yml have every date that is >= 20220923.
+# 20250717 was the first version where ZJIT started working on yjit-bench.
+# target_dates and rubies.yml have every date that is >= 20250717.
 target_dates = []
-time = Time.now.getlocal("+09:00") # workaround until ruby-docker-images fixes it
+time = Time.now.utc
 while (date = to_date(time)) >= 20230307
   target_dates << date
   time -= 24 * 60 * 60
@@ -17,7 +17,7 @@ end
 # Find target_date from target_dates that is on Docker Hub but not in rubies.yml
 rubies = YAML.load_file('rubies.yml')
 target_date = target_dates.find do |date|
-  !rubies.key?(date) && system('docker', 'pull', "rubylang/ruby:master-nightly-#{date}-focal")
+  !rubies.key?(date) && system('docker', 'pull', "rubylang/ruby:master-#{date}")
 end
 if target_date.nil?
   puts "Every Ruby version already exists in rubies.yml"
@@ -25,7 +25,7 @@ if target_date.nil?
 end
 
 # Add target_date's ruby -v to rubies
-output = IO.popen(['docker', 'run', '--rm', "rubylang/ruby:master-nightly-#{target_date}-focal", 'ruby', '-v'], &:read)
+output = IO.popen(['docker', 'run', '--rm', "rubylang/ruby:master-#{target_date}", 'ruby', '-v'], &:read)
 abort "Failed to run `ruby -v`: #{output}" unless $?.success?
 rubies[target_date] = output.chomp
 

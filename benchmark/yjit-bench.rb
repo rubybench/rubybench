@@ -77,7 +77,7 @@ class YJITBench
       system(
         'docker', 'run', '-d', '--privileged', '--name', container,
         '-v', "#{Dir.pwd}:/rubybench",
-        "rubylang/ruby:master-nightly-#{target_date}-focal",
+        "rubylang/ruby:master-#{target_date}",
         'bash', '-c', 'while true; do sleep 100000; done',
         exception: true,
       )
