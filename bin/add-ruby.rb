@@ -9,7 +9,7 @@ end
 # target_dates and rubies.yml have every date that is >= 20250717.
 target_dates = []
 time = Time.now.utc
-while (date = to_date(time)) >= 20230307
+while (date = to_date(time)) >= 20250717
   target_dates << date
   time -= 24 * 60 * 60
 end
