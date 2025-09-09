@@ -25,6 +25,7 @@ class YJITBench
       puts "Every Ruby version is already benchmarked"
       return
     end
+    puts "target_date: #{target_date}"
 
     # Run benchmarks for the interpreter, YJIT, and ZJIT
     container = setup_container(target_date, benchmark: benchmark)

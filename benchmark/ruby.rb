@@ -32,6 +32,7 @@ if target_date.nil?
   puts "Every Ruby version is already benchmarked"
   return
 end
+puts "target_date: #{target_date}"
 
 # Start a container
 system('docker', 'rm', '-f', 'rubybench', exception: true, err: File::NULL)
