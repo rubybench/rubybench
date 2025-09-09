@@ -4,6 +4,8 @@ require 'json'
 require 'yaml'
 
 class YJITBench
+  RUBIES = YAML.load_file('rubies.yml')
+
   def initialize
     @started_containers = []
   end
@@ -17,7 +19,7 @@ class YJITBench
     end
 
     # Find a Ruby that has not been benchmarked yet
-    target_dates = YAML.load_file('rubies.yml').keys.sort.reverse
+    target_dates = RUBIES.keys.sort.reverse
     target_date = target_dates.find do |date|
       !results.key?(date)
     end
@@ -78,7 +80,7 @@ class YJITBench
       system(
         'docker', 'run', '-d', '--privileged', '--name', container,
         '-v', "#{Dir.pwd}:/rubybench",
-        "ghcr.io/ruby/ruby:master-#{target_date}",
+        "ghcr.io/ruby/ruby:master-#{RUBIES.fetch(target_date)}",
         'bash', '-c', 'while true; do sleep 100000; done',
         exception: true,
       )

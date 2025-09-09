@@ -20,7 +20,8 @@ Dir.glob("results/ruby/#{benchmark}/**/*.yml").each do |file|
 end
 
 # Find a Ruby that has not been benchmarked yet
-target_dates = YAML.load_file('rubies.yml').keys.sort.reverse
+RUBIES = YAML.load_file('rubies.yml')
+target_dates = RUBIES.keys.sort.reverse
 if name_results.empty?
   target_date = target_dates.first
 else
@@ -39,7 +40,7 @@ system('docker', 'rm', '-f', 'rubybench', exception: true, err: File::NULL)
 system(
   'docker', 'run', '-d', '--privileged', '--name', 'rubybench',
   '-v', "#{Dir.pwd}:/rubybench",
-  "ghcr.io/ruby/ruby:master-#{target_date}",
+  "ghcr.io/ruby/ruby:master-#{RUBIES.fetch(target_date)}",
   'bash', '-c', 'while true; do sleep 100000; done',
   exception: true,
 )
