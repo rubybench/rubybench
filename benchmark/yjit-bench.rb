@@ -17,7 +17,7 @@ class YJITBench
     end
 
     # Find a Ruby that has not been benchmarked yet
-    target_dates = YAML.load_file('rubies.yml').keys.reverse
+    target_dates = YAML.load_file('rubies.yml').keys.sort.reverse
     target_date = target_dates.find do |date|
       !results.key?(date)
     end
