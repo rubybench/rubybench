@@ -77,7 +77,7 @@ class YJITBench
       system(
         'docker', 'run', '-d', '--privileged', '--name', container,
         '-v', "#{Dir.pwd}:/rubybench",
-        "rubylang/ruby:master-#{target_date}",
+        "ghcr.io/ruby/ruby:master-#{target_date}",
         'bash', '-c', 'while true; do sleep 100000; done',
         exception: true,
       )
