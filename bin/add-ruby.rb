@@ -28,12 +28,28 @@ if target_dates.empty?
 end
 
 target_dates.each do |target_date|
-  # Add target_date's ruby -v to rubies
+  # Convert target_date to ruby_revision
   cmd = ['docker', 'run', '--rm', "ghcr.io/ruby/ruby:master-#{target_date}", 'ruby', '-e', 'print RUBY_REVISION']
   puts "+ #{cmd.join(' ')}"
-  output = IO.popen(cmd, &:read)
-  abort "Failed to run `ruby -v`: #{output}" unless $?.success?
-  rubies[target_date] = output.chomp
+  ruby_revision = IO.popen(cmd, &:read)
+  unless $?.success?
+    puts "Failed to run `#{cmd.join(' ')}`: #{ruby_revision}"
+    next
+  end
+
+  # Make sure `master-#{ruby_revision}` tag also works
+  cmd = ['docker', 'run', '--rm', "ghcr.io/ruby/ruby:master-#{ruby_revision}", 'ruby', '-e', 'print RUBY_REVISION']
+  puts "+ #{cmd.join(' ')}"
+  other_revision = IO.popen(cmd, &:read)
+  unless $?.success?
+    puts "Failed to run `#{cmd.join(' ')}`: #{ruby_revision}"
+    next
+  end
+  if ruby_revision != other_revision
+    puts "RUBY_REVISION mismatch on master-#{ruby_revision}: #{ruby_revision} != #{other_revision}"
+    next
+  end
+  rubies[target_date] = ruby_revision
 end
 
 # Update rubies.yml
