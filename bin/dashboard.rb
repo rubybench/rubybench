@@ -13,19 +13,19 @@ dashboard = {
   headline: {
     no_jit: [],
     yjit: [],
-    rjit: [],
+    zjit: [],
     benchmarks: [],
   },
   other: {
     no_jit: [],
     yjit: [],
-    rjit: [],
+    zjit: [],
     benchmarks: [],
   },
   micro: {
     no_jit: [],
     yjit: [],
-    rjit: [],
+    zjit: [],
     benchmarks: [],
   },
 }
@@ -38,11 +38,11 @@ benchmarks.sort_by(&:first).each do |benchmark, metadata|
   results = benchmark_results.fetch(benchmark)
   category = metadata.fetch(:category, 'other').to_sym
 
-  no_jit, yjit, rjit = results[ruby]
+  no_jit, yjit, zjit = results[ruby]
   if no_jit
     dashboard[category][:no_jit] << format_float(no_jit / no_jit)
     dashboard[category][:yjit] << (yjit ? format_float(no_jit / yjit) : 0.0)
-    dashboard[category][:rjit] << (rjit ? format_float(no_jit / rjit) : 0.0)
+    dashboard[category][:zjit] << (zjit ? format_float(no_jit / zjit) : 0.0)
     dashboard[category][:benchmarks] << benchmark.to_s
   end
 end
