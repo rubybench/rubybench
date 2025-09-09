@@ -26,11 +26,11 @@ class YJITBench
       return
     end
 
-    # Run benchmarks for the interpreter, YJIT, and RJIT
+    # Run benchmarks for the interpreter, YJIT, and ZJIT
     container = setup_container(target_date, benchmark: benchmark)
     result = []
     timeout = 10 * 60 # 10min
-    [nil, '--yjit', '--rjit'].each do |opts|
+    [nil, '--yjit', '--zjit'].each do |opts|
       env = "env BUNDLE_JOBS=8"
       cmd = [
         'timeout', timeout.to_s, 'docker', 'exec', container,
