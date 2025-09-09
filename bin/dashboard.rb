@@ -1,15 +1,27 @@
 #!/usr/bin/env ruby
 require 'yaml'
 
-rubies = YAML.load_file(File.expand_path('../rubies.yml', __dir__))
+def format_float(float)
+  ('%0.2f' % float).to_f
+end
+
+# 20250908 -> "2025-09-08"
+def to_date(ruby)
+  year = ruby / 10000
+  month = ruby / 100 % 100
+  day = ruby % 100
+  "%04d-%02d-%02d" % [year, month, day]
+end
+
+rubies = YAML.load_file(File.expand_path('../rubies.yml', __dir__)).keys
 benchmarks = YAML.load_file(File.expand_path('../benchmark/yjit-bench/benchmarks.yml', __dir__), symbolize_names: true)
 benchmark_results = benchmarks.map do |benchmark, _|
   [benchmark, YAML.load_file(File.expand_path("../results/yjit-bench/#{benchmark}.yml", __dir__))]
 end.to_h
 
-ruby = rubies.keys.select { |ruby| benchmark_results.first.last.key?(ruby) }.max
+ruby = rubies.select { |ruby| benchmark_results.first.last.key?(ruby) }.max
 dashboard = {
-  date: rubies[ruby].match(/ruby [^ ]+ \(([^)T ]+)/)[1],
+  date: to_date(ruby),
   headline: {
     no_jit: [],
     yjit: [],
@@ -29,10 +41,6 @@ dashboard = {
     benchmarks: [],
   },
 }
-
-def format_float(float)
-  ('%0.2f' % float).to_f
-end
 
 benchmarks.sort_by(&:first).each do |benchmark, metadata|
   results = benchmark_results.fetch(benchmark)
