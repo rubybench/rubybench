@@ -84,7 +84,7 @@ class YJITBench
         'bash', '-c', 'while true; do sleep 100000; done',
         exception: true,
       )
-      cmd = 'apt-get update && apt install -y build-essential git libsqlite3-dev libyaml-dev pkg-config xz-utils sudo'
+      cmd = 'apt-get update && apt install -y build-essential git libsqlite3-dev libyaml-dev nodejs pkg-config sudo xz-utils'
       system('docker', 'exec', container, 'bash', '-c', cmd, exception: true)
       @started_containers << container
     end
