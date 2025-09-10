@@ -16,6 +16,7 @@ headline:
   - 1.0
   - 1.0
   - 1.0
+  - 1.0
   yjit:
   - 3.04
   - 2.45
@@ -31,6 +32,7 @@ headline:
   - 1.85
   - 1.88
   - 1.41
+  - 1.94
   zjit:
   - 1.05
   - 1.11
@@ -46,6 +48,7 @@ headline:
   - 1.04
   - 1.02
   - 1.02
+  - 1.0
   benchmarks:
   - activerecord
   - chunky-png
@@ -61,6 +64,7 @@ headline:
   - rubocop
   - ruby-lsp
   - sequel
+  - shipit
 other:
   no_jit:
   - 1.0
