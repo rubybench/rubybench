@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 require 'yaml'
 
-# 20250717 was the first version where ZJIT started working on yjit-bench.
-MIN_DATE = 20250717
+# 20250716 was the first version where ZJIT started working on yjit-bench.
+MIN_DATE = 20250716
 
 def to_date(time)
   time.year * 10000 + time.month * 100 + time.day
