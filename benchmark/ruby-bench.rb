@@ -12,8 +12,8 @@ class YJITBench
 
   def run_benchmark(benchmark)
     # Load past benchmark results
-    if File.exist?("results/yjit-bench/#{benchmark}.yml")
-      results = YAML.load_file("results/yjit-bench/#{benchmark}.yml")
+    if File.exist?("results/ruby-bench/#{benchmark}.yml")
+      results = YAML.load_file("results/ruby-bench/#{benchmark}.yml")
     else
       results = {}
     end
@@ -37,7 +37,7 @@ class YJITBench
       env = "env BUNDLE_JOBS=8"
       cmd = [
         'timeout', timeout.to_s, 'docker', 'exec', container,
-        'bash', '-c', "cd /rubybench/benchmark/yjit-bench && #{env} ./run_benchmarks.rb #{benchmark} -e 'ruby #{opts}'",
+        'bash', '-c', "cd /rubybench/benchmark/ruby-bench && #{env} ./run_benchmarks.rb #{benchmark} -e 'ruby #{opts}'",
       ]
       out = IO.popen(cmd, &:read)
       puts out
@@ -50,9 +50,9 @@ class YJITBench
     end
     results[target_date] = result
 
-    # Update results/yjit-bench/*.yml
-    FileUtils.mkdir_p('results/yjit-bench')
-    File.open("results/yjit-bench/#{benchmark}.yml", "w") do |io|
+    # Update results/ruby-bench/*.yml
+    FileUtils.mkdir_p('results/ruby-bench')
+    File.open("results/ruby-bench/#{benchmark}.yml", "w") do |io|
       results.sort_by(&:first).each do |date, values|
         io.puts "#{date}: #{values.to_json}"
       end
@@ -60,7 +60,7 @@ class YJITBench
 
     # Clean up unnecessary files
     system('docker', 'exec', container, 'git', 'config', '--global', '--add', 'safe.directory', '*', exception: true)
-    system('docker', 'exec', container, 'git', '-C', '/rubybench/benchmark/yjit-bench', 'clean', '-dfx', exception: true)
+    system('docker', 'exec', container, 'git', '-C', '/rubybench/benchmark/ruby-bench', 'clean', '-dfx', exception: true)
   end
 
   def shutdown
@@ -97,7 +97,7 @@ yjit_bench = YJITBench.new
 at_exit { yjit_bench.shutdown }
 
 if ARGV.empty?
-  benchmarks = YAML.load_file('benchmark/yjit-bench/benchmarks.yml').keys
+  benchmarks = YAML.load_file('benchmark/ruby-bench/benchmarks.yml').keys
 else
   benchmarks = ARGV
 end

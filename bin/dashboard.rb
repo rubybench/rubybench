@@ -14,9 +14,9 @@ def to_date(ruby)
 end
 
 rubies = YAML.load_file(File.expand_path('../rubies.yml', __dir__)).keys
-benchmarks = YAML.load_file(File.expand_path('../benchmark/yjit-bench/benchmarks.yml', __dir__), symbolize_names: true)
+benchmarks = YAML.load_file(File.expand_path('../benchmark/ruby-bench/benchmarks.yml', __dir__), symbolize_names: true)
 benchmark_results = benchmarks.map do |benchmark, _|
-  [benchmark, YAML.load_file(File.expand_path("../results/yjit-bench/#{benchmark}.yml", __dir__))]
+  [benchmark, YAML.load_file(File.expand_path("../results/ruby-bench/#{benchmark}.yml", __dir__))]
 end.to_h
 
 ruby = rubies.select { |ruby| benchmark_results.first.last.key?(ruby) }.max

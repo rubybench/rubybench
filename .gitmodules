@@ -1,6 +1,6 @@
-[submodule "yjit-bench"]
-	path = benchmark/yjit-bench
-	url = https://github.com/ruby/yjit-bench
+[submodule "ruby-bench"]
+	path = benchmark/ruby-bench
+	url = https://github.com/ruby/ruby-bench
 	shallow = true
 [submodule "benchmark-driver"]
 	path = benchmark/benchmark-driver
