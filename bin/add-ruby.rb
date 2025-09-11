@@ -8,17 +8,9 @@ def to_date(time)
   time.year * 10000 + time.month * 100 + time.day
 end
 
-if ARGV.include?('--all')
-  # If `--all` is given, fill all missing dates since MIN_DATE
-  min_date = MIN_DATE
-else
-  # Otherwise, check only the last 7 days
-  min_date = to_date(Time.now.utc - 7 * 24 * 60 * 60)
-end
-
 target_dates = []
 time = Time.now.utc
-while (date = to_date(time)) >= min_date
+while (date = to_date(time)) >= MIN_DATE
   target_dates << date
   time -= 24 * 60 * 60
 end
