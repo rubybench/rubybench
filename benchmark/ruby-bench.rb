@@ -36,8 +36,8 @@ class YJITBench
     [nil, '--yjit', '--zjit'].each do |opts|
       env = "env BUNDLE_JOBS=8"
       cmd = [
-        'timeout', '--signal=KILL', timeout.to_s, 'docker', 'exec', container,
-        'bash', '-c', "cd /rubybench/benchmark/ruby-bench && #{env} ./run_benchmarks.rb #{benchmark} -e 'ruby #{opts}'",
+        'docker', 'exec', container, 'bash', '-c',
+        "cd /rubybench/benchmark/ruby-bench && #{env} timeout --signal=KILL #{timeout} ./run_benchmarks.rb #{benchmark} -e 'ruby #{opts}'",
       ]
       out = IO.popen(cmd, &:read)
       puts out
