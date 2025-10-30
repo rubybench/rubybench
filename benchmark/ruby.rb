@@ -80,5 +80,12 @@ name_results.each do |name, results|
 end
 
 # Clean up unnecessary files
-system('docker', 'exec', 'rubybench', 'git', 'config', '--global', '--add', 'safe.directory', '*', exception: true)
-system('docker', 'exec', 'rubybench', 'git', '-C', '/rubybench/benchmark/ruby', 'clean', '-dfx', exception: true)
+[
+  ['bash', '-c', 'apt-get update && apt install -y git'],
+  ['git', 'config', '--global', '--add', 'safe.directory', '*'],
+  ['git', '-C', '/rubybench/benchmark/ruby', 'clean', '-dfx'],
+].each do |cmd|
+  cmd = ['docker', 'exec', 'rubybench', *cmd]
+  puts "+ #{cmd.join(' ')}"
+  system(*cmd, exception: true)
+end
