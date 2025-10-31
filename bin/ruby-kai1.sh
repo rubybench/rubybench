@@ -10,8 +10,8 @@ bin/dashboard.rb
 bin/git-push.sh "ruby-kai1: Benchmark ruby-bench"
 
 # Ruby ruby/ruby
-for bench in benchmark/ruby/benchmark/*.rb benchmark/ruby/benchmark/*.yml; do
-  bench="$(basename "$bench")"
-  benchmark/ruby.rb "$bench"
-done
-bin/git-push.sh "ruby-kai1: Benchmark ruby/ruby"
+#for bench in benchmark/ruby/benchmark/*.rb benchmark/ruby/benchmark/*.yml; do
+#  bench="$(basename "$bench")"
+#  benchmark/ruby.rb "$bench"
+#done
+#bin/git-push.sh "ruby-kai1: Benchmark ruby/ruby"
