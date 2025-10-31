@@ -15,6 +15,8 @@ end
 
 rubies = YAML.load_file(File.expand_path('../rubies.yml', __dir__)).keys
 benchmarks = YAML.load_file(File.expand_path('../benchmark/ruby-bench/benchmarks.yml', __dir__), symbolize_names: true)
+# TODO(max): Remove this filter when Ractor benchmarks are meant to be run by default
+benchmarks.select! {|benchmark, _| !benchmark.to_s.include? 'ractor/'}
 benchmark_results = benchmarks.map do |benchmark, _|
   [benchmark, YAML.load_file(File.expand_path("../results/ruby-bench/#{benchmark}.yml", __dir__))]
 end.to_h
