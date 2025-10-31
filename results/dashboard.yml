@@ -88,6 +88,7 @@ other:
   - 1.0
   - 1.0
   - 1.0
+  - 1.0
   yjit:
   - 2.27
   - 2.39
@@ -97,6 +98,7 @@ other:
   - 1.17
   - 2.26
   - 1.27
+  - 0.97
   - 1.58
   - 2.39
   - 3.08
@@ -119,6 +121,7 @@ other:
   - 1.06
   - 1.03
   - 0.97
+  - 1.0
   - 1.22
   - 0.99
   - 1.01
@@ -141,6 +144,7 @@ other:
   - fluentd
   - graphql
   - graphql-native
+  - knucleotide
   - lee
   - matmul
   - nbody
@@ -156,6 +160,7 @@ other:
   - tinygql
 micro:
   no_jit:
+  - 1.0
   - 1.0
   - 1.0
   - 1.0
@@ -194,6 +199,7 @@ micro:
   - 2.5
   - 2.72
   - 3.22
+  - 11.4
   - 1.59
   zjit:
   - 2.22
@@ -214,6 +220,7 @@ micro:
   - 0.94
   - 1.07
   - 1.1
+  - 12.67
   - 0.83
   benchmarks:
   - 30k_ifelse
@@ -234,4 +241,5 @@ micro:
   - setivar_object
   - setivar_young
   - str_concat
+  - structaref
   - throw
