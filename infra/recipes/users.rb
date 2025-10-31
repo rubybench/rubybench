@@ -1,6 +1,7 @@
 %w[
-  eregon
   eightbitraptor
+  eregon
+  k0kubun
 ].each do |u|
   user u do
     gid 27 # sudo
@@ -21,6 +22,11 @@
     mode  '600'
     owner u
   end
+end
+
+remote_file '/home/k0kubun/.gitconfig' do
+  mode '644'
+  owner 'k0kubun'
 end
 
 remote_file '/home/k0kubun/.ssh/config' do
