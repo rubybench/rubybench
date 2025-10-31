@@ -1,5 +1,6 @@
 %w[
   eregon
+  eightbitraptor
 ].each do |u|
   user u do
     gid 27 # sudo
