@@ -3,9 +3,18 @@ require 'fileutils'
 require 'json'
 require 'yaml'
 
+IGNORED_BENCHMARKS = [
+  # Too many benchmarks to complete in 10min. This should probably live in ruby-method-benchmarks.
+  'set.yml',
+]
+
 benchmark_file = ARGV.first
 if benchmark_file.nil?
   abort "Usage: #{$0} BENCHMARK_FILE"
+end
+if IGNORED_BENCHMARKS.include?(benchmark_file)
+  puts "Ignored benchmark: #{benchmark_file}"
+  return
 end
 
 # Make sure the benchmark file exists
