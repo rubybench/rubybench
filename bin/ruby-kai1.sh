@@ -4,6 +4,9 @@ set -uxo pipefail # not using -e to minimize impact of bad benchmarks
 rubybench=$(cd $(dirname "$0"); cd ..; pwd)
 cd "$rubybench"
 
+export RUBYBENCH_RESULTS_REPO="git@github-rubybench-data:rubybench/rubybench-data.git"
+export RUBYBENCH_RESULTS_COMMIT_PREFIX="[ruby-kai1] "
+
 # Run ruby-bench
 benchmark/ruby-bench.rb
 bin/dashboard.rb
