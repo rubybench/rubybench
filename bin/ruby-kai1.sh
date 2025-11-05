@@ -7,10 +7,16 @@ cd "$rubybench"
 export RUBYBENCH_RESULTS_REPO="git@github-rubybench-data:rubybench/rubybench-data.git"
 export RUBYBENCH_RESULTS_COMMIT_PREFIX="[ruby-kai1] "
 
+# Ensure RUBYBENCH_RESULTS_REPO is set
+if [[ -z "$RUBYBENCH_RESULTS_REPO" ]]; then
+  echo "ERROR: RUBYBENCH_RESULTS_REPO environment variable is not set" >&2
+  echo "This variable must be set to the git repository where results should be pushed" >&2
+  exit 1
+fi
+
 # Run ruby-bench
 benchmark/ruby-bench.rb
 bin/dashboard.rb
-bin/git-push.sh "ruby-kai1: Benchmark ruby-bench"
 
 # Ruby ruby/ruby
 set +x
@@ -19,12 +25,8 @@ for bench in benchmark/ruby/benchmark/*.rb benchmark/ruby/benchmark/*.yml; do
   echo "+ benchmark/ruby.rb $bench"
   benchmark/ruby.rb "$bench"
 done
-bin/git-push.sh "ruby-kai1: Benchmark ruby/ruby"
 
-# Sync all results to external repository if configured
-if [[ -n "$RUBYBENCH_RESULTS_REPO" ]]; then
-  echo "Syncing results to repo $RUBYBENCH_RESULTS_REPO"
-  bin/sync-results.rb
-else 
-  echo "RUBYBENCH_RESULTS_REPO not set, skipping result sync"
-fi
+# Sync all results to external repository
+# We'll run this once after all benchmarks are run
+echo "Syncing results to repo $RUBYBENCH_RESULTS_REPO"
+bin/sync-results.rb
