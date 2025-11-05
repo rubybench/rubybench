@@ -18,7 +18,7 @@ bin/hocho apply ruby-kai1
 2. rubybench/rubybench's GitHub Actions tries to pull today's image. once it becomes ready, rubies.yml is updated in the repository.
 3. The ruby-kai1 server runs a [systemd timer](infra/recipes/files/lib/systemd/system/rubybench.timer).
 4. That timer essentially just keeps executing [bin/ruby-kai1.sh](bin/ruby-kai1.sh).
-5. That script runs a benchmark, updates YAMLs, and pushes it with bin/git-push.sh.
+5. That script runs a benchmark, updates YAMLs, and pushes it to the rubybench-data repository with bin/sync-results.rb.
 6. As soon as the YAML is pushed, https://github.com/rubybench/rubybench.github.io sees it through GitHub's raw bob.
 
 ## Useful commands
