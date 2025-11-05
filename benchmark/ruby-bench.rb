@@ -42,8 +42,11 @@ class YJITBench
       out = IO.popen(cmd, &:read)
       puts out
       if $?.success?
-        line = out.lines.reverse.find { |line| line.start_with?(benchmark) }
-        result << Float(line.split(/\s+/)[1])
+        if line = out.lines.reverse.find { |line| line.start_with?(benchmark) }
+          result << Float(line.split(/\s+/)[1])
+        else
+          puts "benchmark output for #{benchmark} not found"
+        end
       else
         result << nil
       end
