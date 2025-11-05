@@ -103,40 +103,7 @@ class ResultSyncer
   end
 
   def build_commit_message
-    [
-      "#{@commit_prefix}Benchmark results update - #{timestamp}".strip,
-      "",
-      metadata_lines
-    ].flatten.compact.join("\n")
-  end
-
-  def timestamp
-    Time.now.utc.strftime('%Y-%m-%d %H:%M UTC')
-  end
-
-  def metadata_lines
-    return unless Dir.exist?(File.join(@source_dir, 'ruby-bench'))
-
-    [
-      ruby_versions_line,
-      "Benchmarks: #{benchmark_count} result files"
-    ].compact
-  end
-
-  def ruby_versions_line
-    dates = ruby_version_dates
-    "Ruby versions: #{dates.first}-#{dates.last}" if dates&.any?
-  end
-
-  def ruby_version_dates
-    rubies_file = File.expand_path('../rubies.yml', __dir__)
-    return unless File.exist?(rubies_file)
-
-    YAML.load_file(rubies_file).keys.map(&:to_s).sort
-  end
-
-  def benchmark_count
-    Dir.glob(File.join(@source_dir, 'ruby-bench', '*.yml')).size
+    "#{@commit_prefix}Sync benchmark results".strip
   end
 
   # Git command helpers

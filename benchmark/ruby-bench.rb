@@ -42,8 +42,11 @@ class YJITBench
       out = IO.popen(cmd, &:read)
       puts out
       if $?.success?
-        line = out.lines.reverse.find { |line| line.start_with?(benchmark) }
-        result << Float(line.split(/\s+/)[1])
+        if line = out.lines.reverse.find { |line| line.start_with?(benchmark) }
+          result << Float(line.split(/\s+/)[1])
+        else
+          puts "benchmark output for #{benchmark} not found"
+        end
       else
         result << nil
       end
@@ -66,12 +69,6 @@ class YJITBench
   def shutdown
     @started_containers.each do |container|
       system('docker', 'rm', '-f', container, exception: true)
-    end
-  end
-
-  def sync_results_to_repo
-    if ENV['RUBYBENCH_RESULTS_REPO']
-      system(RbConfig.ruby, File.expand_path('../bin/sync-results.rb', __dir__))
     end
   end
 
@@ -110,6 +107,3 @@ end
 benchmarks.each do |benchmark|
   yjit_bench.run_benchmark(benchmark)
 end
-
-# Sync results to separate repository if configured
-yjit_bench.sync_results_to_repo

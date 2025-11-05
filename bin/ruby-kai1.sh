@@ -20,3 +20,11 @@ for bench in benchmark/ruby/benchmark/*.rb benchmark/ruby/benchmark/*.yml; do
   benchmark/ruby.rb "$bench"
 done
 bin/git-push.sh "ruby-kai1: Benchmark ruby/ruby"
+
+# Sync all results to external repository if configured
+if [[ -n "$RUBYBENCH_RESULTS_REPO" ]]; then
+  echo "Syncing results to repo $RUBYBENCH_RESULTS_REPO"
+  bin/sync-results.rb
+else 
+  echo "RUBYBENCH_RESULTS_REPO not set, skipping result sync"
+fi
