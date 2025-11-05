@@ -1,0 +1,6 @@
+# Temporary files
+*.tmp
+*.swp
+*.swo
+*~
+.DS_Store
