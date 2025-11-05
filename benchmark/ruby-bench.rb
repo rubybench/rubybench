@@ -72,12 +72,6 @@ class YJITBench
     end
   end
 
-  def sync_results_to_repo
-    if ENV['RUBYBENCH_RESULTS_REPO']
-      system(RbConfig.ruby, File.expand_path('../bin/sync-results.rb', __dir__))
-    end
-  end
-
   private
 
   def setup_container(target_date, benchmark:)
@@ -113,6 +107,3 @@ end
 benchmarks.each do |benchmark|
   yjit_bench.run_benchmark(benchmark)
 end
-
-# Sync results to separate repository if configured
-yjit_bench.sync_results_to_repo
