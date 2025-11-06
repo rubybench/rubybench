@@ -18,6 +18,10 @@ fi
 benchmark/ruby-bench.rb
 bin/dashboard.rb
 
+# Sync ruby-bench results to external repository
+echo "Syncing ruby-bench results to repo $RUBYBENCH_RESULTS_REPO"
+bin/sync-results.rb ruby-bench
+
 # Ruby ruby/ruby
 set +x
 for bench in benchmark/ruby/benchmark/*.rb benchmark/ruby/benchmark/*.yml; do
@@ -26,7 +30,6 @@ for bench in benchmark/ruby/benchmark/*.rb benchmark/ruby/benchmark/*.yml; do
   benchmark/ruby.rb "$bench"
 done
 
-# Sync all results to external repository
-# We'll run this once after all benchmarks are run
-echo "Syncing results to repo $RUBYBENCH_RESULTS_REPO"
-bin/sync-results.rb
+# Sync ruby/ruby benchmark results to external repository
+echo "Syncing ruby/ruby benchmark results to repo $RUBYBENCH_RESULTS_REPO"
+bin/sync-results.rb ruby
