@@ -6,12 +6,13 @@ require 'time'
 require 'yaml'
 
 class ResultSyncer
-  def initialize
+  def initialize(result_type = nil)
     @repo_url = ENV['RUBYBENCH_RESULTS_REPO']
     @branch = ENV.fetch('RUBYBENCH_RESULTS_BRANCH', 'main')
     @local_path = ENV.fetch('RUBYBENCH_RESULTS_PATH', File.join(Dir.tmpdir, 'rubybench-results'))
     @commit_prefix = ENV.fetch('RUBYBENCH_RESULTS_COMMIT_PREFIX', '')
     @source_dir = File.expand_path('../results', __dir__)
+    @result_type = result_type
   end
 
   def sync!
@@ -103,7 +104,18 @@ class ResultSyncer
   end
 
   def build_commit_message
-    "#{@commit_prefix}Sync benchmark results".strip
+    message = case @result_type
+    when 'ruby-bench'
+      "Sync ruby-bench results"
+    when 'ruby'
+      "Sync ruby/ruby benchmark results"
+    when nil
+      "Sync benchmark results"
+    else
+      # This should never happen due to validation, but fail explicitly if it does
+      raise "Invalid result type: #{@result_type}"
+    end
+    "#{@commit_prefix}#{message}".strip
   end
 
   # Git command helpers
@@ -130,4 +142,14 @@ class ResultSyncer
   end
 end
 
-ResultSyncer.new.sync!
+# Accept optional argument for result type (ruby-bench or ruby)
+result_type = ARGV[0]
+
+# Validate result type if provided
+if result_type && !['ruby-bench', 'ruby'].include?(result_type)
+  $stderr.puts "ERROR: Invalid result type '#{result_type}'"
+  $stderr.puts "Valid options are: ruby-bench, ruby"
+  exit 1
+end
+
+ResultSyncer.new(result_type).sync!
