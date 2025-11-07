@@ -14,12 +14,14 @@ if [[ -z "$RUBYBENCH_RESULTS_REPO" ]]; then
   exit 1
 fi
 
+# Prepare results repository (clean clone)
+bin/prepare-results.rb
+
 # Run ruby-bench
 benchmark/ruby-bench.rb
 bin/dashboard.rb
 
-# Sync ruby-bench results to external repository
-echo "Syncing ruby-bench results to repo $RUBYBENCH_RESULTS_REPO"
+# Sync ruby-bench results
 bin/sync-results.rb ruby-bench
 
 # Ruby ruby/ruby
@@ -30,6 +32,5 @@ for bench in benchmark/ruby/benchmark/*.rb benchmark/ruby/benchmark/*.yml; do
   benchmark/ruby.rb "$bench"
 done
 
-# Sync ruby/ruby benchmark results to external repository
-echo "Syncing ruby/ruby benchmark results to repo $RUBYBENCH_RESULTS_REPO"
+# Sync ruby/ruby benchmark results
 bin/sync-results.rb ruby
