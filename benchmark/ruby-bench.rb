@@ -5,65 +5,16 @@ require 'yaml'
 
 class YJITBench
   RUBIES = YAML.load_file('rubies.yml')
+  attr_reader :ractor_compatible, :ractor_only
 
   def initialize
     @started_containers = []
+    load_benchmark_metadata
   end
 
   def run_benchmark(benchmark)
-    # Load past benchmark results
-    if File.exist?("results/ruby-bench/#{benchmark}.yml")
-      results = YAML.load_file("results/ruby-bench/#{benchmark}.yml")
-    else
-      results = {}
-    end
-
-    # Find a Ruby that has not been benchmarked yet
-    target_dates = RUBIES.keys.sort.reverse
-    target_date = target_dates.find do |date|
-      !results.key?(date)
-    end
-    if target_date.nil?
-      puts "Every Ruby version is already benchmarked"
-      return
-    end
-    puts "target_date: #{target_date}"
-
-    # Run benchmarks for the interpreter, YJIT, and ZJIT
-    container = setup_container(target_date, benchmark: benchmark)
-    result = []
-    timeout = 10 * 60 # 10min
-    [nil, '--yjit', '--zjit'].each do |opts|
-      env = "env BUNDLE_JOBS=8"
-      cmd = [
-        'docker', 'exec', container, 'bash', '-c',
-        "cd /rubybench/benchmark/ruby-bench && #{env} timeout --signal=KILL #{timeout} ./run_benchmarks.rb #{benchmark} -e 'ruby #{opts}'",
-      ]
-      out = IO.popen(cmd, &:read)
-      puts out
-      if $?.success?
-        if line = out.lines.reverse.find { |line| line.start_with?(benchmark) }
-          result << Float(line.split(/\s+/)[1])
-        else
-          puts "benchmark output for #{benchmark} not found"
-        end
-      else
-        result << nil
-      end
-    end
-    results[target_date] = result
-
-    # Update results/ruby-bench/*.yml
-    FileUtils.mkdir_p('results/ruby-bench')
-    File.open("results/ruby-bench/#{benchmark}.yml", "w") do |io|
-      results.sort_by(&:first).each do |date, values|
-        io.puts "#{date}: #{values.to_json}"
-      end
-    end
-
-    # Clean up unnecessary files
-    system('docker', 'exec', container, 'git', 'config', '--global', '--add', 'safe.directory', '*', exception: true)
-    system('docker', 'exec', container, 'git', '-C', '/rubybench/benchmark/ruby-bench', 'clean', '-dfx', exception: true)
+    results_file = "results/ruby-bench/#{benchmark}.yml"
+    run_benchmark_generic(benchmark, results_file, is_ractor: false)
   end
 
   def shutdown
@@ -72,12 +23,129 @@ class YJITBench
     end
   end
 
+  def run_ractor_benchmark(benchmark)
+    safe_name = benchmark.gsub('/', '_')
+    prefix = @ractor_only.include?(benchmark) ? "ractor_only_" : ""
+    results_file = "results/ruby-bench-ractor/#{prefix}#{safe_name}.yml"
+    category = @ractor_only.include?(benchmark) ? 'ractor-only' : 'ractor'
+
+    run_benchmark_generic(benchmark, results_file,
+      is_ractor: true,
+      category: category,
+      label: "ractor:#{benchmark}"
+    )
+  end
+
   private
+
+  def run_benchmark_generic(benchmark, results_file, is_ractor: false, category: nil, label: nil)
+    if File.exist?(results_file)
+      results = YAML.load_file(results_file)
+    else
+      results = {}
+    end
+
+    target_dates = RUBIES.keys.sort.reverse
+    target_date = target_dates.find do |date|
+      !results.key?(date)
+    end
+    if target_date.nil?
+      message = "Every Ruby version is already benchmarked"
+      message += " for #{label}" if label
+      puts message
+      return
+    end
+    prefix = label ? "#{label} " : ""
+    puts "#{prefix}target_date: #{target_date}"
+
+    container = setup_container(target_date, benchmark: benchmark)
+    result = is_ractor ? {} : []
+    timeout = 10 * 60
+
+    [nil, '--yjit', '--zjit'].each do |opts|
+      env = "env BUNDLE_JOBS=8"
+      category_arg = category ? "--category #{category}" : ""
+      cmd = [
+        'docker', 'exec', container, 'bash', '-c',
+        "cd /rubybench/benchmark/ruby-bench && #{env} timeout --signal=KILL #{timeout} ./run_benchmarks.rb #{benchmark} #{category_arg} -e 'ruby #{opts}'",
+      ]
+      out = IO.popen(cmd, &:read)
+      puts out
+
+      if is_ractor
+        config_name = opts.nil? ? 'baseline' : opts.delete_prefix('--')
+        if $?.success?
+          result[config_name] = parse_ractor_output(out, benchmark)
+        else
+          result[config_name] = nil
+        end
+      else
+        if $?.success?
+          if line = find_benchmark_line(out, benchmark)
+            result << Float(line.split(/\s+/)[1])
+          else
+            puts "benchmark output for #{benchmark} not found"
+          end
+        else
+          result << nil
+        end
+      end
+    end
+    results[target_date] = result
+
+    FileUtils.mkdir_p(File.dirname(results_file))
+    File.open(results_file, "w") do |io|
+      results.sort_by(&:first).each do |date, values|
+        io.puts "#{date}: #{values.to_json}"
+      end
+    end
+
+    system('docker', 'exec', container, 'git', 'config', '--global', '--add', 'safe.directory', '*', exception: true)
+    system('docker', 'exec', container, 'git', '-C', '/rubybench/benchmark/ruby-bench', 'clean', '-dfx', exception: true)
+  end
+
+  def load_benchmark_metadata
+    @benchmarks_yml = YAML.load_file('benchmark/ruby-bench/benchmarks.yml')
+    @ractor_compatible = @benchmarks_yml.select { |_, info| info['ractor'] == true }.keys
+    @ractor_only = Dir.glob('benchmark/ruby-bench/benchmarks-ractor/**/benchmark.rb').map do |path|
+      File.basename(File.dirname(path))
+    end
+    
+    # Check for naming conflicts between ractor-compatible and ractor-only benchmarks
+    conflicts = @ractor_compatible & @ractor_only
+    if conflicts.any?
+      puts "NOTE: Found benchmarks with same name in both regular and ractor-only: #{conflicts.join(', ')}"
+      puts "      These will be saved with 'ractor_only_' prefix for ractor-only versions."
+    end
+  end
+
+  def find_benchmark_line(output, benchmark)
+    search_pattern = benchmark.include?('/') ? benchmark.split('/').last : benchmark
+    output.lines.reverse.find { |line| line.start_with?(search_pattern) }
+  end
+
+  def parse_ractor_output(output, benchmark)
+    line = find_benchmark_line(output, benchmark)
+    return nil unless line
+
+    values = line.split(/\s+/)[1..-1].map { |v| Float(v) }
+
+    ractor_counts = [0, 1, 2, 4, 6, 8]
+    iterations_per_count = 5
+
+    grouped = {}
+    ractor_counts.each_with_index do |count, idx|
+      start_idx = idx * iterations_per_count
+      end_idx = start_idx + iterations_per_count - 1
+      grouped[count.to_s] = values[start_idx..end_idx]
+    end
+
+    grouped
+  end
 
   def setup_container(target_date, benchmark:)
     container = "rubybench-#{target_date}"
 
-    # Start a container
     unless @started_containers.include?(container)
       system('docker', 'rm', '-f', container, exception: true, err: File::NULL)
       system(
@@ -101,9 +169,24 @@ at_exit { yjit_bench.shutdown }
 
 if ARGV.empty?
   benchmarks = YAML.load_file('benchmark/ruby-bench/benchmarks.yml').keys
+  benchmarks.each do |benchmark|
+    yjit_bench.run_benchmark(benchmark)
+  end
+
+  if yjit_bench.ractor_compatible.any?
+    yjit_bench.ractor_compatible.each do |benchmark|
+      yjit_bench.run_ractor_benchmark(benchmark)
+    end
+  end
+
+  if yjit_bench.ractor_only.any?
+    yjit_bench.ractor_only.each do |benchmark|
+      yjit_bench.run_ractor_benchmark(benchmark)
+    end
+  end
 else
   benchmarks = ARGV
-end
-benchmarks.each do |benchmark|
-  yjit_bench.run_benchmark(benchmark)
+  benchmarks.each do |benchmark|
+    yjit_bench.run_benchmark(benchmark)
+  end
 end
