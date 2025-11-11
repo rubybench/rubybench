@@ -4,7 +4,11 @@ require 'json'
 require 'yaml'
 
 class YJITBench
-  RUBIES = YAML.load_file('rubies.yml')
+  rubies_path = File.expand_path('../results/rubies.yml', __dir__)
+  unless File.exist?(rubies_path)
+    abort "ERROR: rubies.yml not found at #{rubies_path}. Please setup using bin/prepare-results.rb"
+  end
+  RUBIES = YAML.load_file(rubies_path)
   RACTOR_ITERATION_PATTERN = /^\s*(\d+)\s+#\d+:\s*(\d+)ms/
   attr_reader :ractor_compatible, :ractor_only
 

@@ -13,7 +13,11 @@ def to_date(ruby)
   "%04d-%02d-%02d" % [year, month, day]
 end
 
-rubies = YAML.load_file(File.expand_path('../rubies.yml', __dir__)).keys
+rubies_path = File.expand_path('../results/rubies.yml', __dir__)
+unless File.exist?(rubies_path)
+  abort "ERROR: rubies.yml not found at #{rubies_path}. Please setup using bin/prepare-results.rb"
+end
+rubies = YAML.load_file(rubies_path).keys
 benchmarks = YAML.load_file(File.expand_path('../benchmark/ruby-bench/benchmarks.yml', __dir__), symbolize_names: true)
 # TODO(max): Remove this filter when Ractor benchmarks are meant to be run by default
 benchmarks.select! {|benchmark, _| !benchmark.to_s.include? 'ractor/'}
