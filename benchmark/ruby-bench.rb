@@ -5,6 +5,7 @@ require 'yaml'
 
 class YJITBench
   RUBIES = YAML.load_file('rubies.yml')
+  RACTOR_ITERATION_PATTERN = /^\s*(\d+)\s+#\d+:\s*(\d+)ms/
   attr_reader :ractor_compatible, :ractor_only
 
   def initialize
@@ -110,7 +111,7 @@ class YJITBench
     @ractor_only = Dir.glob('benchmark/ruby-bench/benchmarks-ractor/**/benchmark.rb').map do |path|
       File.basename(File.dirname(path))
     end
-    
+
     # Check for naming conflicts between ractor-compatible and ractor-only benchmarks
     conflicts = @ractor_compatible & @ractor_only
     if conflicts.any?
@@ -125,21 +126,22 @@ class YJITBench
   end
 
   def parse_ractor_output(output, benchmark)
-    line = find_benchmark_line(output, benchmark)
-    return nil unless line
-
-    values = line.split(/\s+/)[1..-1].map { |v| Float(v) }
-
-    ractor_counts = [0, 1, 2, 4, 6, 8]
-    iterations_per_count = 5
-
     grouped = {}
-    ractor_counts.each_with_index do |count, idx|
-      start_idx = idx * iterations_per_count
-      end_idx = start_idx + iterations_per_count - 1
-      grouped[count.to_s] = values[start_idx..end_idx]
+
+    iteration_lines = output.lines.select { |line| line.match(RACTOR_ITERATION_PATTERN) }
+    return nil if iteration_lines.empty?
+
+    iteration_lines.each do |line|
+      if match = line.match(RACTOR_ITERATION_PATTERN)
+        ractor_count = match[1]
+        time_ms = match[2].to_f
+
+        grouped[ractor_count] ||= []
+        grouped[ractor_count] << time_ms
+      end
     end
 
+    return nil if grouped.empty?
     grouped
   end
 
