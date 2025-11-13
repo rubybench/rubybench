@@ -29,7 +29,11 @@ Dir.glob("results/ruby/#{benchmark}/**/*.yml").each do |file|
 end
 
 # Find a Ruby that has not been benchmarked yet
-RUBIES = YAML.load_file('rubies.yml')
+rubies_path = File.expand_path('../results/rubies.yml', __dir__)
+unless File.exist?(rubies_path)
+  abort "ERROR: rubies.yml not found at #{rubies_path}. Please setup using bin/prepare-results.rb"
+end
+RUBIES = YAML.load_file(rubies_path)
 target_dates = RUBIES.keys.sort.reverse
 if name_results.empty?
   target_date = target_dates.first
