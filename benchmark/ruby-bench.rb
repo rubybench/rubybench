@@ -2,6 +2,8 @@
 require 'fileutils'
 require 'json'
 require 'yaml'
+require_relative '../lib/yjit_stats_processor'
+require_relative '../lib/exit_report_formatter'
 
 class YJITBench
   rubies_path = File.expand_path('../results/rubies.yml', __dir__)
@@ -12,9 +14,11 @@ class YJITBench
   RACTOR_ITERATION_PATTERN = /^\s*(\d+)\s+#\d+:\s*(\d+)ms/
   attr_reader :ractor_compatible, :ractor_only
 
-  def initialize
+  def initialize(collect_stats: false)
     @started_containers = []
+    @collect_stats = collect_stats
     load_benchmark_metadata
+    puts "YJIT stats collection: #{@collect_stats ? 'enabled' : 'disabled'}" if @collect_stats
   end
 
   def run_benchmark(benchmark)
@@ -67,6 +71,10 @@ class YJITBench
     result = is_ractor ? {} : []
     timeout = 10 * 60
 
+    # Collect YJIT stats if enabled
+    yjit_stats = nil
+    zjit_stats = nil
+
     [nil, '--yjit', '--zjit'].each do |opts|
       env = "env BUNDLE_JOBS=8"
       category_arg = category ? "--category #{category}" : ""
@@ -91,12 +99,26 @@ class YJITBench
           else
             puts "benchmark output for #{benchmark} not found"
           end
+
+          # Collect YJIT stats after successful benchmark run
+          if @collect_stats && opts == '--yjit' && !is_ractor
+            puts "Collecting YJIT stats for #{benchmark}..."
+            yjit_stats = collect_jit_stats(container, 'yjit')
+          elsif @collect_stats && opts == '--zjit' && !is_ractor
+            puts "Collecting ZJIT stats for #{benchmark}..."
+            zjit_stats = collect_jit_stats(container, 'zjit')
+          end
         else
           result << nil
         end
       end
     end
     results[target_date] = result
+
+    # Process and store YJIT stats if collected
+    if @collect_stats && !is_ractor
+      process_and_store_stats(benchmark, target_date, yjit_stats, zjit_stats)
+    end
 
     FileUtils.mkdir_p(File.dirname(results_file))
     File.open(results_file, "w") do |io|
@@ -149,6 +171,96 @@ class YJITBench
     grouped
   end
 
+  def collect_jit_stats(container, jit_type)
+    # Run the stats collection script inside the container
+    cmd = [
+      'docker', 'exec', container, 'ruby',
+      "/rubybench/benchmark/collect_yjit_stats.rb"
+    ]
+
+    stats_json = IO.popen(cmd, &:read)
+
+    if $?.success?
+      begin
+        stats = JSON.parse(stats_json)
+        return stats unless stats['error']
+        puts "Stats collection error: #{stats['error']}"
+      rescue JSON::ParserError => e
+        puts "Failed to parse stats JSON: #{e.message}"
+      end
+    else
+      puts "Stats collection failed for #{jit_type}"
+    end
+
+    nil
+  end
+
+  def process_and_store_stats(benchmark, date, yjit_stats, zjit_stats)
+    ruby_sha = RUBIES[date]
+
+    # Process YJIT stats
+    if yjit_stats
+      processed_stats = YJITStatsProcessor.process_stats(yjit_stats)
+      if processed_stats
+        # Save essential stats to YAML
+        save_essential_stats(benchmark, date, processed_stats, 'yjit')
+
+        # Generate and save exit report
+        full_stats = YJITStatsProcessor.extract_full_stats_for_report(yjit_stats)
+        save_exit_report(benchmark, date, ruby_sha, full_stats, 'yjit')
+      end
+    end
+
+    # Process ZJIT stats if available (future-proofing)
+    if zjit_stats
+      processed_stats = YJITStatsProcessor.process_stats(zjit_stats)
+      if processed_stats
+        save_essential_stats(benchmark, date, processed_stats, 'zjit')
+
+        full_stats = YJITStatsProcessor.extract_full_stats_for_report(zjit_stats)
+        save_exit_report(benchmark, date, ruby_sha, full_stats, 'zjit')
+      end
+    end
+  end
+
+  def save_essential_stats(benchmark, date, stats, jit_type)
+    stats_file = "results/#{jit_type}-stats/#{benchmark}.yml"
+
+    # Load existing stats or create new
+    if File.exist?(stats_file)
+      all_stats = YAML.load_file(stats_file)
+    else
+      all_stats = {}
+    end
+
+    # Add new stats for this date
+    all_stats[date] = stats
+
+    # Write back to file
+    FileUtils.mkdir_p(File.dirname(stats_file))
+    File.open(stats_file, 'w') do |f|
+      all_stats.sort_by(&:first).each do |d, s|
+        f.puts "#{d}: #{s.to_json}"
+      end
+    end
+
+    puts "Saved #{jit_type} stats for #{benchmark} (#{date})"
+  end
+
+  def save_exit_report(benchmark, date, ruby_sha, stats, jit_type)
+    report_dir = "results/exit-reports/#{date}"
+    report_file = "#{report_dir}/#{benchmark}_#{jit_type}.txt"
+
+    # Generate the report
+    report = ExitReportFormatter.generate_report(benchmark, date, ruby_sha, stats)
+
+    # Write to file
+    FileUtils.mkdir_p(report_dir)
+    File.write(report_file, report)
+
+    puts "Generated exit report: #{report_file}"
+  end
+
   def setup_container(target_date, benchmark:)
     container = "rubybench-#{target_date}"
 
@@ -170,10 +282,22 @@ class YJITBench
   end
 end
 
-yjit_bench = YJITBench.new
+# Parse command-line options
+collect_stats = false
+benchmarks_to_run = []
+
+ARGV.each do |arg|
+  if arg == '--collect-stats'
+    collect_stats = true
+  else
+    benchmarks_to_run << arg
+  end
+end
+
+yjit_bench = YJITBench.new(collect_stats: collect_stats)
 at_exit { yjit_bench.shutdown }
 
-if ARGV.empty?
+if benchmarks_to_run.empty?
   benchmarks = YAML.load_file('benchmark/ruby-bench/benchmarks.yml').keys
   benchmarks.each do |benchmark|
     yjit_bench.run_benchmark(benchmark)
@@ -191,8 +315,7 @@ if ARGV.empty?
     end
   end
 else
-  benchmarks = ARGV
-  benchmarks.each do |benchmark|
+  benchmarks_to_run.each do |benchmark|
     yjit_bench.run_benchmark(benchmark)
   end
 end
