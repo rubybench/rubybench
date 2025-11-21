@@ -37,13 +37,14 @@ class YJITBench
     run_benchmark_generic(benchmark, results_file,
       is_ractor: true,
       category: category,
-      label: "ractor:#{benchmark}"
+      label: "ractor:#{benchmark}",
+      no_pinning: true
     )
   end
 
   private
 
-  def run_benchmark_generic(benchmark, results_file, is_ractor: false, category: nil, label: nil)
+  def run_benchmark_generic(benchmark, results_file, is_ractor: false, category: nil, label: nil, no_pinning: false)
     if File.exist?(results_file)
       results = YAML.load_file(results_file)
     else
@@ -70,9 +71,10 @@ class YJITBench
     [nil, '--yjit', '--zjit'].each do |opts|
       env = "env BUNDLE_JOBS=8"
       category_arg = category ? "--category #{category}" : ""
+      pinning_arg = no_pinning ? "--no-pinning" : ""
       cmd = [
         'docker', 'exec', container, 'bash', '-c',
-        "cd /rubybench/benchmark/ruby-bench && #{env} timeout --signal=KILL #{timeout} ./run_benchmarks.rb #{benchmark} #{category_arg} -e 'ruby #{opts}'",
+        "cd /rubybench/benchmark/ruby-bench && #{env} timeout --signal=KILL #{timeout} ./run_benchmarks.rb #{benchmark} #{category_arg} #{pinning_arg} -e 'ruby #{opts}'",
       ]
       out = IO.popen(cmd, &:read)
       puts out
