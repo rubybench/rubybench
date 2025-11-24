@@ -10,6 +10,7 @@ class RubyBench
   end
   RUBIES = YAML.load_file(rubies_path)
   RACTOR_ITERATION_PATTERN = /^\s*(\d+)\s+#\d+:\s*(\d+)ms/
+  RSS_PATTERN = /^RSS:\s*([\d.]+)MiB/
   attr_reader :ractor_compatible, :ractor_only
 
   def initialize
@@ -19,7 +20,8 @@ class RubyBench
 
   def run_benchmark(benchmark)
     results_file = "results/ruby-bench/#{benchmark}.yml"
-    run_benchmark_generic(benchmark, results_file, is_ractor: false)
+    rss_file = "results/ruby-bench-rss/#{benchmark}.yml"
+    run_benchmark_generic(benchmark, results_file, rss_file: rss_file, is_ractor: false)
   end
 
   def shutdown
@@ -32,9 +34,11 @@ class RubyBench
     safe_name = benchmark.gsub('/', '_')
     prefix = @ractor_only.include?(benchmark) ? "ractor_only_" : ""
     results_file = "results/ruby-bench-ractor/#{prefix}#{safe_name}.yml"
+    rss_file = "results/ruby-bench-ractor-rss/#{prefix}#{safe_name}.yml"
     category = @ractor_only.include?(benchmark) ? 'ractor-only' : 'ractor'
 
     run_benchmark_generic(benchmark, results_file,
+      rss_file: rss_file,
       is_ractor: true,
       category: category,
       label: "ractor:#{benchmark}",
@@ -44,11 +48,16 @@ class RubyBench
 
   private
 
-  def run_benchmark_generic(benchmark, results_file, is_ractor: false, category: nil, label: nil, no_pinning: false)
+  def run_benchmark_generic(benchmark, results_file, rss_file: nil, is_ractor: false, category: nil, label: nil, no_pinning: false)
     if File.exist?(results_file)
       results = YAML.load_file(results_file)
     else
       results = {}
+    end
+
+    rss_results = {}
+    if rss_file && File.exist?(rss_file)
+      rss_results = YAML.load_file(rss_file)
     end
 
     target_dates = RUBIES.reject { |_, sha| sha.nil? }.keys.sort.reverse
@@ -66,6 +75,7 @@ class RubyBench
 
     container = setup_container(target_date, benchmark: benchmark)
     result = is_ractor ? {} : []
+    rss_result = []
     timeout = 10 * 60
 
     [nil, '--yjit', '--zjit'].each do |opts|
@@ -83,18 +93,23 @@ class RubyBench
         config_name = opts.nil? ? 'baseline' : opts.delete_prefix('--')
         if $?.success?
           result[config_name] = parse_ractor_output(out, benchmark)
+          rss_result << parse_rss(out)
         else
           result[config_name] = nil
+          rss_result << nil
         end
       else
         if $?.success?
           if line = find_benchmark_line(out, benchmark)
             result << Float(line.split(/\s+/)[1])
+            rss_result << parse_rss(out)
           else
             puts "benchmark output for #{benchmark} not found"
+            rss_result << nil
           end
         else
           result << nil
+          rss_result << nil
         end
       end
     end
@@ -104,6 +119,16 @@ class RubyBench
     File.open(results_file, "w") do |io|
       results.sort_by(&:first).each do |date, values|
         io.puts "#{date}: #{values.to_json}"
+      end
+    end
+
+    if rss_file
+      rss_results[target_date] = rss_result
+      FileUtils.mkdir_p(File.dirname(rss_file))
+      File.open(rss_file, "w") do |io|
+        rss_results.sort_by(&:first).each do |date, values|
+          io.puts "#{date}: #{values.to_json}"
+        end
       end
     end
 
@@ -129,6 +154,11 @@ class RubyBench
   def find_benchmark_line(output, benchmark)
     search_pattern = benchmark.include?('/') ? benchmark.split('/').last : benchmark
     output.lines.reverse.find { |line| line.start_with?(search_pattern) }
+  end
+
+  def parse_rss(output)
+    match = output.match(RSS_PATTERN)
+    match ? Float(match[1]) : nil
   end
 
   def parse_ractor_output(output, benchmark)
