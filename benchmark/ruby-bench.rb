@@ -51,7 +51,7 @@ class YJITBench
       results = {}
     end
 
-    target_dates = RUBIES.keys.sort.reverse
+    target_dates = RUBIES.reject { |_, sha| sha.nil? }.keys.sort.reverse
     target_date = target_dates.find do |date|
       !results.key?(date)
     end
