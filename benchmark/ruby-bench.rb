@@ -3,7 +3,7 @@ require 'fileutils'
 require 'json'
 require 'yaml'
 
-class YJITBench
+class RubyBench
   rubies_path = File.expand_path('../results/rubies.yml', __dir__)
   unless File.exist?(rubies_path)
     abort "ERROR: rubies.yml not found at #{rubies_path}. Please setup using bin/prepare-results.rb"
@@ -172,29 +172,29 @@ class YJITBench
   end
 end
 
-yjit_bench = YJITBench.new
-at_exit { yjit_bench.shutdown }
+ruby_bench = RubyBench.new
+at_exit { ruby_bench.shutdown }
 
 if ARGV.empty?
   benchmarks = YAML.load_file('benchmark/ruby-bench/benchmarks.yml').keys
   benchmarks.each do |benchmark|
-    yjit_bench.run_benchmark(benchmark)
+    ruby_bench.run_benchmark(benchmark)
   end
 
-  if yjit_bench.ractor_compatible.any?
-    yjit_bench.ractor_compatible.each do |benchmark|
-      yjit_bench.run_ractor_benchmark(benchmark)
+  if ruby_bench.ractor_compatible.any?
+    ruby_bench.ractor_compatible.each do |benchmark|
+      ruby_bench.run_ractor_benchmark(benchmark)
     end
   end
 
-  if yjit_bench.ractor_only.any?
-    yjit_bench.ractor_only.each do |benchmark|
-      yjit_bench.run_ractor_benchmark(benchmark)
+  if ruby_bench.ractor_only.any?
+    ruby_bench.ractor_only.each do |benchmark|
+      ruby_bench.run_ractor_benchmark(benchmark)
     end
   end
 else
   benchmarks = ARGV
   benchmarks.each do |benchmark|
-    yjit_bench.run_benchmark(benchmark)
+    ruby_bench.run_benchmark(benchmark)
   end
 end
