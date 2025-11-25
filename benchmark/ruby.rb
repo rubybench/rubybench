@@ -34,7 +34,7 @@ unless File.exist?(rubies_path)
   abort "ERROR: rubies.yml not found at #{rubies_path}. Please setup using bin/prepare-results.rb"
 end
 RUBIES = YAML.load_file(rubies_path)
-target_dates = RUBIES.keys.sort.reverse
+target_dates = RUBIES.reject { |_, sha| sha.nil? }.keys.sort.reverse
 if name_results.empty?
   target_date = target_dates.first
 else
