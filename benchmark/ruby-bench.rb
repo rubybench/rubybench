@@ -4,6 +4,37 @@ require 'json'
 require 'yaml'
 
 class RubyBench
+
+  class Benchmarks
+    RACTOR_ONLY_PREFIX = 'ractor/'
+
+    attr_reader :regular, :ractor_compatible, :ractor_only
+
+    def self.parse_benchmark_file(file_path)
+      new(file_path).parse
+    end
+
+    def initialize(file_path)
+      @file_path = file_path
+    end
+
+    def parse
+      @benchmarks_yml = YAML.load_file(@file_path)
+      @ractor_compatible = @benchmarks_yml.select { |_, info| info['ractor'] == true }.keys
+      @ractor_only = @benchmarks_yml.keys.map { |key| key.start_with?(RACTOR_ONLY_PREFIX) ? key.gsub(RACTOR_ONLY_PREFIX, '') : nil }.compact
+      @regular = @benchmarks_yml.keys.reject { |key| key.start_with?(RACTOR_ONLY_PREFIX) }
+
+      # Check for naming conflicts between ractor-compatible and ractor-only benchmarks
+      conflicts = @ractor_compatible & @ractor_only
+      if conflicts.any?
+        puts "NOTE: Found benchmarks with same name in both regular and ractor-only: #{conflicts.join(', ')}"
+        puts "      These will be saved with 'ractor_only_' prefix for ractor-only versions."
+      end
+
+      self
+    end
+  end
+
   rubies_path = File.expand_path('../results/rubies.yml', __dir__)
   unless File.exist?(rubies_path)
     abort "ERROR: rubies.yml not found at #{rubies_path}. Please setup using bin/prepare-results.rb"
@@ -11,11 +42,9 @@ class RubyBench
   RUBIES = YAML.load_file(rubies_path)
   RACTOR_ITERATION_PATTERN = /^\s*(\d+)\s+#\d+:\s*(\d+)ms/
   RSS_PATTERN = /^RSS:\s*([\d.]+)MiB/
-  attr_reader :ractor_compatible, :ractor_only
 
   def initialize
     @started_containers = []
-    load_benchmark_metadata
   end
 
   def run_benchmark(benchmark)
@@ -30,12 +59,12 @@ class RubyBench
     end
   end
 
-  def run_ractor_benchmark(benchmark)
+  def run_ractor_benchmark(benchmark, ractor_only: false)
     safe_name = benchmark.gsub('/', '_')
-    prefix = @ractor_only.include?(benchmark) ? "ractor_only_" : ""
+    prefix = ractor_only  ? "ractor_only_" : ""
+    category = ractor_only ? 'ractor-only' : 'ractor'
     results_file = "results/ruby-bench-ractor/#{prefix}#{safe_name}.yml"
     rss_file = "results/ruby-bench-ractor-rss/#{prefix}#{safe_name}.yml"
-    category = @ractor_only.include?(benchmark) ? 'ractor-only' : 'ractor'
 
     run_benchmark_generic(benchmark, results_file,
       rss_file: rss_file,
@@ -136,21 +165,6 @@ class RubyBench
     system('docker', 'exec', container, 'git', '-C', '/rubybench/benchmark/ruby-bench', 'clean', '-dfx', exception: true)
   end
 
-  def load_benchmark_metadata
-    @benchmarks_yml = YAML.load_file('benchmark/ruby-bench/benchmarks.yml')
-    @ractor_compatible = @benchmarks_yml.select { |_, info| info['ractor'] == true }.keys
-    @ractor_only = Dir.glob('benchmark/ruby-bench/benchmarks-ractor/**/benchmark.rb').map do |path|
-      File.basename(File.dirname(path))
-    end
-
-    # Check for naming conflicts between ractor-compatible and ractor-only benchmarks
-    conflicts = @ractor_compatible & @ractor_only
-    if conflicts.any?
-      puts "NOTE: Found benchmarks with same name in both regular and ractor-only: #{conflicts.join(', ')}"
-      puts "      These will be saved with 'ractor_only_' prefix for ractor-only versions."
-    end
-  end
-
   def find_benchmark_line(output, benchmark)
     search_pattern = benchmark.include?('/') ? benchmark.split('/').last : benchmark
     output.lines.reverse.find { |line| line.start_with?(search_pattern) }
@@ -206,21 +220,18 @@ ruby_bench = RubyBench.new
 at_exit { ruby_bench.shutdown }
 
 if ARGV.empty?
-  benchmarks = YAML.load_file('benchmark/ruby-bench/benchmarks.yml').keys
-  benchmarks.each do |benchmark|
+  benchmarks = RubyBench::Benchmarks.parse_benchmark_file('benchmark/ruby-bench/benchmarks.yml')
+
+  benchmarks.regular.each do |benchmark|
     ruby_bench.run_benchmark(benchmark)
   end
 
-  if ruby_bench.ractor_compatible.any?
-    ruby_bench.ractor_compatible.each do |benchmark|
-      ruby_bench.run_ractor_benchmark(benchmark)
-    end
+  benchmarks.ractor_compatible.each do |benchmark|
+    ruby_bench.run_ractor_benchmark(benchmark)
   end
 
-  if ruby_bench.ractor_only.any?
-    ruby_bench.ractor_only.each do |benchmark|
-      ruby_bench.run_ractor_benchmark(benchmark)
-    end
+  benchmarks.ractor_only.each do |benchmark|
+    ruby_bench.run_ractor_benchmark(benchmark, ractor_only: true)
   end
 else
   benchmarks = ARGV
