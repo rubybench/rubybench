@@ -24,27 +24,36 @@ benchmarks.select! {|benchmark, _| !benchmark.to_s.include? 'ractor/'}
 benchmark_results = benchmarks.map do |benchmark, _|
   [benchmark, YAML.load_file(File.expand_path("../results/ruby-bench/#{benchmark}.yml", __dir__))]
 end.to_h
+rss_results = benchmarks.map do |benchmark, _|
+  rss_path = File.expand_path("../results/ruby-bench-rss/#{benchmark}.yml", __dir__)
+  [benchmark, File.exist?(rss_path) ? YAML.load_file(rss_path) : {}]
+end.to_h
 
 ruby = rubies.select { |ruby| benchmark_results.first.last.key?(ruby) }.max
+rss_ruby = rss_results.values.flat_map(&:keys).max
 dashboard = {
   date: to_date(ruby),
+  rss_date: rss_ruby ? to_date(rss_ruby) : nil,
   headline: {
     no_jit: [],
     yjit: [],
     zjit: [],
     benchmarks: [],
+    rss: { no_jit: [], yjit: [], zjit: [], benchmarks: [] },
   },
   other: {
     no_jit: [],
     yjit: [],
     zjit: [],
     benchmarks: [],
+    rss: { no_jit: [], yjit: [], zjit: [], benchmarks: [] },
   },
   micro: {
     no_jit: [],
     yjit: [],
     zjit: [],
     benchmarks: [],
+    rss: { no_jit: [], yjit: [], zjit: [], benchmarks: [] },
   },
 }
 
@@ -59,9 +68,24 @@ benchmarks.sort_by(&:first).each do |benchmark, metadata|
     dashboard[category][:zjit] << (zjit ? format_float(no_jit / zjit) : 0.0)
     dashboard[category][:benchmarks] << benchmark.to_s
   end
+
+  rss = rss_results.fetch(benchmark)
+  rss_no_jit, rss_yjit, rss_zjit = rss[rss_ruby]
+  if rss_ruby && rss_no_jit
+    dashboard[category][:rss][:no_jit] << format_float(rss_no_jit / rss_no_jit)
+    dashboard[category][:rss][:yjit] << (rss_yjit ? format_float(rss_yjit / rss_no_jit) : 0.0)
+    dashboard[category][:rss][:zjit] << (rss_zjit ? format_float(rss_zjit / rss_no_jit) : 0.0)
+    dashboard[category][:rss][:benchmarks] << benchmark.to_s
+  end
 end
 
-dashboard = dashboard.transform_keys(&:to_s).transform_values do |value|
-  value.is_a?(Hash) ? value.transform_keys(&:to_s) : value
+def stringify_keys(obj)
+  case obj
+  when Hash
+    obj.transform_keys(&:to_s).transform_values { |v| stringify_keys(v) }
+  else
+    obj
+  end
 end
-File.write(File.expand_path('../results/dashboard.yml', __dir__), dashboard.to_yaml)
+
+File.write(File.expand_path('../results/dashboard.yml', __dir__), stringify_keys(dashboard).to_yaml)
