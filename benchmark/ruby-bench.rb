@@ -42,6 +42,16 @@ class RubyBench
   RUBIES = YAML.load_file(rubies_path)
   RACTOR_ITERATION_PATTERN = /^\s*(\d+)\s+#\d+:\s*(\d+)ms/
   RSS_PATTERN = /^RSS:\s*([\d.]+)MiB/
+  YJIT_STATS_KEYS = %w[
+    inline_code_size
+    outlined_code_size
+    code_region_size
+    yjit_alloc_size
+    compile_time_ns
+    compiled_iseq_count
+    compiled_block_count
+    invalidation_count
+  ].freeze
 
   def initialize
     @started_containers = []
@@ -50,7 +60,8 @@ class RubyBench
   def run_benchmark(benchmark)
     results_file = "results/ruby-bench/#{benchmark}.yml"
     rss_file = "results/ruby-bench-rss/#{benchmark}.yml"
-    run_benchmark_generic(benchmark, results_file, rss_file: rss_file, is_ractor: false)
+    yjit_stats_file = "results/ruby-bench-yjit-stats/#{benchmark}.yml"
+    run_benchmark_generic(benchmark, results_file, rss_file: rss_file, yjit_stats_file: yjit_stats_file, is_ractor: false)
   end
 
   def shutdown
@@ -77,7 +88,7 @@ class RubyBench
 
   private
 
-  def run_benchmark_generic(benchmark, results_file, rss_file: nil, is_ractor: false, category: nil, label: nil, no_pinning: false)
+  def run_benchmark_generic(benchmark, results_file, rss_file: nil, yjit_stats_file: nil, is_ractor: false, category: nil, label: nil, no_pinning: false)
     if File.exist?(results_file)
       results = YAML.load_file(results_file)
     else
@@ -87,6 +98,11 @@ class RubyBench
     rss_results = {}
     if rss_file && File.exist?(rss_file)
       rss_results = YAML.load_file(rss_file)
+    end
+
+    yjit_stats_results = {}
+    if yjit_stats_file && File.exist?(yjit_stats_file)
+      yjit_stats_results = YAML.load_file(yjit_stats_file)
     end
 
     target_dates = RUBIES.reject { |_, sha| sha.nil? }.keys.sort.reverse
@@ -105,10 +121,14 @@ class RubyBench
     container = setup_container(target_date, benchmark: benchmark)
     result = is_ractor ? {} : []
     rss_result = []
+    yjit_stats_result = nil
     timeout = 10 * 60
+    json_filename = "benchmark-result-#{Process.pid}.json"
+    json_path = "/rubybench/tmp/#{json_filename}"
+    local_json_path = "tmp/#{json_filename}"
 
     [nil, '--yjit', '--zjit'].each do |opts|
-      env = "env BUNDLE_JOBS=8"
+      env = "env BUNDLE_JOBS=8 RESULT_JSON_PATH=#{json_path}"
       category_arg = category ? "--category #{category}" : ""
       pinning_arg = no_pinning ? "--no-pinning" : ""
       cmd = [
@@ -132,6 +152,9 @@ class RubyBench
           if line = find_benchmark_line(out, benchmark)
             result << Float(line.split(/\s+/)[1])
             rss_result << parse_rss(out)
+            if opts == '--yjit' && yjit_stats_file
+              yjit_stats_result = extract_yjit_stats_from_json(local_json_path)
+            end
           else
             puts "benchmark output for #{benchmark} not found"
             rss_result << nil
@@ -161,6 +184,18 @@ class RubyBench
       end
     end
 
+    if yjit_stats_file && yjit_stats_result
+      yjit_stats_results[target_date] = yjit_stats_result
+      FileUtils.mkdir_p(File.dirname(yjit_stats_file))
+      File.open(yjit_stats_file, "w") do |io|
+        yjit_stats_results.sort_by(&:first).each do |date, values|
+          io.puts "#{date}: #{values.to_json}"
+        end
+      end
+    end
+
+    FileUtils.rm_f(local_json_path)
+
     system('docker', 'exec', container, 'git', 'config', '--global', '--add', 'safe.directory', '*', exception: true)
     system('docker', 'exec', container, 'git', '-C', '/rubybench/benchmark/ruby-bench', 'clean', '-dfx', exception: true)
   end
@@ -173,6 +208,26 @@ class RubyBench
   def parse_rss(output)
     match = output.match(RSS_PATTERN)
     match ? Float(match[1]) : nil
+  end
+
+  def extract_yjit_stats_from_json(json_path)
+    unless File.exist?(json_path)
+      warn "YJIT stats JSON not found: #{json_path}"
+      return nil
+    end
+    json_result = JSON.parse(File.read(json_path))
+    stats = json_result["yjit_stats"]
+    unless stats
+      warn "No yjit_stats key in #{json_path}"
+      return nil
+    end
+    extracted = stats.slice(*YJIT_STATS_KEYS)
+    missing_keys = YJIT_STATS_KEYS - extracted.keys
+    warn "Missing YJIT stats keys: #{missing_keys.join(', ')}" if missing_keys.any?
+    extracted.empty? ? nil : extracted
+  rescue JSON::ParserError => e
+    warn "Failed to parse YJIT stats JSON: #{e.message}"
+    nil
   end
 
   def parse_ractor_output(output, benchmark)

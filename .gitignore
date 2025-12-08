@@ -1,6 +1,9 @@
 # Benchmark results directory (now pushed to rubybench-data repo)
 results/
 
+# Temporary benchmark output
+tmp/
+
 # Temporary files
 *.tmp
 *.swp
