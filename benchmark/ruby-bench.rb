@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'fileutils'
 require 'json'
+require 'optparse'
 require 'yaml'
 
 class RubyBench
@@ -43,13 +44,14 @@ class RubyBench
   RACTOR_ITERATION_PATTERN = /^\s*(\d+)\s+#\d+:\s*(\d+)ms/
   RSS_PATTERN = /^RSS:\s*([\d.]+)MiB/
 
-  def initialize
+  def initialize(options)
+    @results_root = options[:results_root] || "results"
     @started_containers = []
   end
 
   def run_benchmark(benchmark)
-    results_file = "results/ruby-bench/#{benchmark}.yml"
-    rss_file = "results/ruby-bench-rss/#{benchmark}.yml"
+    results_file = "#{@results_root}/ruby-bench/#{benchmark}.yml"
+    rss_file = "#{@results_root}/ruby-bench-rss/#{benchmark}.yml"
     run_benchmark_generic(benchmark, results_file, rss_file: rss_file, is_ractor: false)
   end
 
@@ -63,8 +65,8 @@ class RubyBench
     safe_name = benchmark.gsub('/', '_')
     prefix = ractor_only  ? "ractor_only_" : ""
     category = ractor_only ? 'ractor-only' : 'ractor'
-    results_file = "results/ruby-bench-ractor/#{prefix}#{safe_name}.yml"
-    rss_file = "results/ruby-bench-ractor-rss/#{prefix}#{safe_name}.yml"
+    results_file = "#{@results_root}/ruby-bench-ractor/#{prefix}#{safe_name}.yml"
+    rss_file = "#{@results_root}/ruby-bench-ractor-rss/#{prefix}#{safe_name}.yml"
 
     run_benchmark_generic(benchmark, results_file,
       rss_file: rss_file,
@@ -216,7 +218,14 @@ class RubyBench
   end
 end
 
-ruby_bench = RubyBench.new
+options = {}
+OptionParser.new do |parser|
+  parser.on("--results-root [ROOT]", "A directory in which the results tree will be output") do |path|
+    options[:results_root] = path
+  end
+end.parse!
+
+ruby_bench = RubyBench.new(options)
 at_exit { ruby_bench.shutdown }
 
 if ARGV.empty?
