@@ -27,7 +27,8 @@ if options[:target_date] && !options[:ruby_binary]
   abort "ERROR: --ruby is required when using --date"
 end
 
-machine_results_root = "#{options[:results_root]}/#{RubyBench::Machine.path}"
+machine_path = RubyBench::Machine.path
+machine_results_root = machine_path ? "#{options[:results_root]}/#{machine_path}" : options[:results_root]
 
 runner = if options[:ruby_binary]
   RubyBench::LocalRunner.new(ruby_binary: options[:ruby_binary], target_date: options[:target_date])

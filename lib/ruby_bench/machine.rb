@@ -4,6 +4,8 @@ require 'socket'
 
 class RubyBench
   module Machine
+    LEGACY_MACHINES = %w[ruby-kai1].freeze
+
     def self.arch
       `uname -m`.strip
     end
@@ -13,6 +15,7 @@ class RubyBench
     end
 
     def self.path
+      return nil if LEGACY_MACHINES.include?(hostname)
       "#{arch}/#{hostname}"
     end
   end
