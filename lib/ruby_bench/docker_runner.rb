@@ -60,7 +60,7 @@ class RubyBench
           'bash', '-c', 'while true; do sleep 100000; done',
           exception: true,
         )
-        cmd = 'apt-get update && apt install -y build-essential curl git libsqlite3-dev libyaml-dev nodejs pkg-config sudo xz-utils'
+        cmd = 'apt-get update && apt install -y build-essential curl git libclang1 libsqlite3-dev libyaml-dev nodejs pkg-config sudo xz-utils'
         system('docker', 'exec', container, 'bash', '-c', cmd, exception: true)
         @started_containers << container
       end
