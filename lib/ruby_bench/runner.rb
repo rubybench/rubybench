@@ -10,6 +10,14 @@ class RubyBench
       raise NotImplementedError
     end
 
+    def execute_zjit_stats(benchmark)
+      raise NotImplementedError
+    end
+
+    def latest_date
+      raise NotImplementedError
+    end
+
     def setup_for_date(target_date)
     end
 

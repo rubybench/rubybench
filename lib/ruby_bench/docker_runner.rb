@@ -16,6 +16,21 @@ class RubyBench
       target_dates.find { |date| !existing_results.key?(date) }
     end
 
+    def latest_date
+      @rubies.reject { |_, sha| sha.nil? }.keys.sort.last
+    end
+
+    def execute_zjit_stats(benchmark)
+      ensure_container_running(@current_target_date)
+      env = "env BUNDLE_JOBS=8"
+      timeout = 10 * 60
+      cmd = [
+        'docker', 'exec', @current_container, 'bash', '-c',
+        "cd /rubybench/benchmark/ruby-bench && #{env} timeout --signal=KILL #{timeout} ./run_benchmarks.rb #{benchmark} --once --out-name zjit_stats_temp -e 'ruby --zjit-stats'",
+      ]
+      IO.popen(cmd, &:read)
+    end
+
     def execute(benchmark, opts:, category:, no_pinning:)
       ensure_container_running(@current_target_date)
       env = "env BUNDLE_JOBS=8"
