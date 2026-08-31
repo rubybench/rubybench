@@ -3,6 +3,7 @@
 
 require 'optparse'
 require_relative '../lib/ruby_bench'
+require_relative '../lib/ruby_bench/machine'
 
 RUBIES_PATH = File.expand_path('../results/rubies.yml', __dir__)
 
@@ -26,6 +27,9 @@ if options[:target_date] && !options[:ruby_binary]
   abort "ERROR: --ruby is required when using --date"
 end
 
+machine_path = RubyBench::Machine.path
+machine_results_root = machine_path ? "#{options[:results_root]}/#{machine_path}" : options[:results_root]
+
 runner = if options[:ruby_binary]
   RubyBench::LocalRunner.new(ruby_binary: options[:ruby_binary], target_date: options[:target_date])
 else
@@ -35,7 +39,7 @@ else
   RubyBench::DockerRunner.new(rubies_path: RUBIES_PATH)
 end
 
-ruby_bench = RubyBench.new(runner: runner, results_root: options[:results_root])
+ruby_bench = RubyBench.new(runner: runner, results_root: machine_results_root)
 at_exit { ruby_bench.shutdown }
 
 if ARGV.empty?
