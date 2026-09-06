@@ -11,6 +11,20 @@ class RubyBench
       @target_date
     end
 
+    def latest_date
+      @target_date
+    end
+
+    def execute_zjit_stats(benchmark)
+      env = "env BUNDLE_JOBS=8"
+      ruby_opts = "#{@ruby_binary} --zjit-stats"
+      cmd = [
+        'bash', '-c',
+        "cd benchmark/ruby-bench && #{env} ./run_benchmarks.rb #{benchmark} --once --out-name zjit_stats_temp -e 'ruby::#{ruby_opts}'",
+      ]
+      IO.popen(cmd, &:read)
+    end
+
     def execute(benchmark, opts:, category:, no_pinning:)
       env = "env BUNDLE_JOBS=8"
       category_arg = category ? "--category #{category}" : ""

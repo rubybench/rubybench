@@ -5,6 +5,7 @@ rubybench=$(cd $(dirname "$0"); cd ..; pwd)
 cd "$rubybench"
 
 export RUBYBENCH_RESULTS_REPO="git@github-rubybench-data:rubybench/rubybench-data.git"
+export RUBYBENCH_STATS_REPO="git@github-rubybench-stats:rubybench/rubybench-stats.git"
 export RUBYBENCH_RESULTS_COMMIT_PREFIX="[ruby-kai1] "
 
 # Ensure RUBYBENCH_RESULTS_REPO is set
@@ -17,12 +18,19 @@ fi
 # Prepare results repository (clean clone)
 bin/prepare-results.rb
 
-# Run ruby-bench
-benchmark/ruby-bench.rb
+# Prepare stats repository
+bin/prepare-stats.rb
+
+# Run ruby-bench (with ZJIT stats collection)
+stats_dir="${RUBYBENCH_STATS_DIR:-$(cd "$rubybench/.."; pwd)/rubybench-stats}"
+benchmark/ruby-bench.rb --stats-dir "$stats_dir"
 bin/dashboard.rb
 
 # Sync ruby-bench results
 bin/sync-results.rb ruby-bench
+
+# Sync ZJIT stats
+bin/sync-stats.rb
 
 # Ruby ruby/ruby
 set +x

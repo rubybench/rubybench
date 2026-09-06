@@ -19,6 +19,26 @@ class RubyBench
     run_benchmark_generic(benchmark, results_file, rss_file: rss_file, is_ractor: false)
   end
 
+  ZJIT_STATS_JSON_PATH = 'benchmark/ruby-bench/zjit_stats_temp.json'
+
+  def run_zjit_stats(benchmark, stats_dir:)
+    stats_file = "#{stats_dir}/ruby-bench/zjit/#{benchmark}.txt"
+
+    out = @runner.execute_zjit_stats(benchmark)
+    puts out if out
+
+    stats_string = read_zjit_stats_string
+    if stats_string
+      FileUtils.mkdir_p(File.dirname(stats_file))
+      File.write(stats_file, stats_string)
+      puts "Wrote ZJIT stats for #{benchmark}"
+    else
+      puts "ZJIT stats_string not found for #{benchmark}"
+    end
+
+    @runner.cleanup_after_benchmark
+  end
+
   def run_ractor_benchmark(benchmark, ractor_only: false)
     safe_name = benchmark.gsub('/', '_')
     prefix = ractor_only ? "ractor_only_" : ""
@@ -107,6 +127,19 @@ class RubyBench
         io.puts "#{date}: #{values.to_json}"
       end
     end
+  end
+
+  def read_zjit_stats_string
+    return nil unless File.exist?(ZJIT_STATS_JSON_PATH)
+    data = JSON.parse(File.read(ZJIT_STATS_JSON_PATH))
+    data["raw_data"]&.each_value do |benchmarks|
+      benchmarks.each_value do |bench_data|
+        return bench_data["zjit_stats_string"] if bench_data.is_a?(Hash) && bench_data["zjit_stats_string"]
+      end
+    end
+    nil
+  rescue JSON::ParserError
+    nil
   end
 
   def find_benchmark_line(output, benchmark)
