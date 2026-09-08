@@ -4,6 +4,8 @@ Benchmark runner for [rubybench.github.io](https://rubybench.github.io)
 
 ## Apply recipes
 
+Note: Currently, Ruby 4.0 seems to raise an exception. You might want to try Ruby 3.3 or something until it's fixed.
+
 ```bash
 # dry-run
 bin/hocho apply -n ruby-kai1
