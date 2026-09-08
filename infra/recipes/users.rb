@@ -2,6 +2,7 @@
   eightbitraptor
   eregon
   k0kubun
+  tekknolagi
 ].each do |u|
   user u do
     gid 27 # sudo
