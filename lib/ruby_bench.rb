@@ -63,13 +63,13 @@ class RubyBench
     result = is_ractor ? {} : []
     rss_result = []
 
-    [nil, '--yjit', '--zjit'].each do |opts|
-      warmup = opts && !is_ractor ? JIT_WARMUP_ITRS : nil
-      out = @runner.execute(benchmark, opts: opts, category: category, no_pinning: no_pinning, warmup: warmup)
+    [nil, '--yjit', '--zjit'].each do |jit_opts|
+      warmup = jit_opts && !is_ractor ? JIT_WARMUP_ITRS : nil
+      out = @runner.execute(benchmark, opts: jit_opts, category: category, no_pinning: no_pinning, warmup: warmup)
       puts out
 
       if is_ractor
-        config_name = opts.nil? ? 'baseline' : opts.delete_prefix('--')
+        config_name = jit_opts.nil? ? 'baseline' : jit_opts.delete_prefix('--')
         if $?.success?
           result[config_name] = parse_ractor_output(out, benchmark)
           rss_result << parse_rss(out)
