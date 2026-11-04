@@ -7,6 +7,9 @@ require 'yaml'
 class RubyBench
   RACTOR_ITERATION_PATTERN = /^\s*(\d+)\s+#\d+:\s*(\d+)ms/
   RSS_PATTERN = /^RSS:\s*([\d.]+)MiB/
+  # YJIT and ZJIT compile a method after 30 calls. The harness default of 15
+  # warmup iterations leaves a method that runs once per iteration uncompiled.
+  JIT_WARMUP_ITRS = 50
 
   def initialize(runner:, results_root: "results")
     @runner = runner
@@ -61,7 +64,8 @@ class RubyBench
     rss_result = []
 
     [nil, '--yjit', '--zjit'].each do |opts|
-      out = @runner.execute(benchmark, opts: opts, category: category, no_pinning: no_pinning)
+      warmup = opts && !is_ractor ? JIT_WARMUP_ITRS : nil
+      out = @runner.execute(benchmark, opts: opts, category: category, no_pinning: no_pinning, warmup: warmup)
       puts out
 
       if is_ractor
