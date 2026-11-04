@@ -16,15 +16,16 @@ class RubyBench
       target_dates.find { |date| !existing_results.key?(date) }
     end
 
-    def execute(benchmark, opts:, category:, no_pinning:)
+    def execute(benchmark, opts:, category:, no_pinning:, warmup: nil)
       ensure_container_running(@current_target_date)
       env = "env BUNDLE_JOBS=8"
       category_arg = category ? "--category #{category}" : ""
       pinning_arg = no_pinning ? "--no-pinning" : ""
+      warmup_arg = warmup ? "--warmup=#{warmup}" : ""
       timeout = 10 * 60
       cmd = [
         'docker', 'exec', @current_container, 'bash', '-c',
-        "cd /rubybench/benchmark/ruby-bench && #{env} timeout --signal=KILL #{timeout} ./run_benchmarks.rb #{benchmark} #{category_arg} #{pinning_arg} -e 'ruby #{opts}'",
+        "cd /rubybench/benchmark/ruby-bench && #{env} timeout --signal=KILL #{timeout} ./run_benchmarks.rb #{benchmark} #{category_arg} #{pinning_arg} #{warmup_arg} -e 'ruby #{opts}'",
       ]
       IO.popen(cmd, &:read)
     end

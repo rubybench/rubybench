@@ -6,7 +6,7 @@ class RubyBench
       raise NotImplementedError
     end
 
-    def execute(benchmark, opts:, category:, no_pinning:)
+    def execute(benchmark, opts:, category:, no_pinning:, warmup: nil)
       raise NotImplementedError
     end
 
