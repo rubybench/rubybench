@@ -80,6 +80,7 @@ class RubyBench
             rss_result << parse_rss(out)
           else
             puts "benchmark output for #{benchmark} not found"
+            result << nil
             rss_result << nil
           end
         else
