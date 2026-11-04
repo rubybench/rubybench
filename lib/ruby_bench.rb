@@ -9,7 +9,7 @@ class RubyBench
   RSS_PATTERN = /^RSS:\s*([\d.]+)MiB/
   # YJIT and ZJIT compile a method after 30 calls. The harness default of 15
   # warmup iterations leaves a method that runs once per iteration uncompiled.
-  JIT_WARMUP_ITRS = 50
+  JIT_WARMUP_ITRS = 30
 
   def initialize(runner:, results_root: "results")
     @runner = runner
