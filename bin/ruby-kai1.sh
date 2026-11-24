@@ -4,8 +4,8 @@ set -uxo pipefail # not using -e to minimize impact of bad benchmarks
 rubybench=$(cd $(dirname "$0"); cd ..; pwd)
 cd "$rubybench"
 
-export RUBYBENCH_RESULTS_REPO="git@github-rubybench-data:rubybench/rubybench-data.git"
-export RUBYBENCH_RESULTS_COMMIT_PREFIX="[ruby-kai1] "
+export RUBYBENCH_RESULTS_REPO="${RUBYBENCH_RESULTS_REPO-git@github-rubybench-data:rubybench/rubybench-data.git}"
+export RUBYBENCH_RESULTS_COMMIT_PREFIX="${RUBYBENCH_RESULTS_COMMIT_PREFIX-[ruby-kai1] }"
 
 # Ensure RUBYBENCH_RESULTS_REPO is set
 if [[ -z "$RUBYBENCH_RESULTS_REPO" ]]; then

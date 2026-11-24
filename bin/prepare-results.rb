@@ -15,7 +15,8 @@ if File.exist?("#{results_dir}/.git")
   # Repository exists - fetch and reset to origin
   puts "Updating existing results repository"
   Dir.chdir(results_dir) do
-    system("git", "fetch", "origin", exception: true)
+    system("git", "remote", "set-url", "origin", repo_url, exception: true)
+    system("git", "fetch", "--prune", "origin", exception: true)
     system("git", "checkout", branch, exception: true)
     system("git", "reset", "--hard", "origin/#{branch}", exception: true)
     system("git", "clean", "-fd", exception: true)
