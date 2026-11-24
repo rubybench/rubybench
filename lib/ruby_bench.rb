@@ -146,3 +146,4 @@ end
 require_relative 'ruby_bench/benchmarks'
 require_relative 'ruby_bench/runner'
 require_relative 'ruby_bench/docker_runner'
+require_relative 'ruby_bench/mmtk_docker_runner'

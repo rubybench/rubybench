@@ -37,6 +37,8 @@ class ResultSyncer
       "Sync ruby-bench results"
     when 'ruby'
       "Sync ruby/ruby benchmark results"
+    when 'mmtk'
+      "Sync MMTk ruby-bench results"
     else
       "Sync benchmark results"
     end
@@ -44,13 +46,13 @@ class ResultSyncer
   end
 end
 
-# Accept optional argument for result type (ruby-bench or ruby)
+# Accept optional argument for result type (ruby-bench, ruby or mmtk)
 result_type = ARGV[0]
 
 # Validate result type if provided
-if result_type && !['ruby-bench', 'ruby'].include?(result_type)
+if result_type && !['ruby-bench', 'ruby', 'mmtk'].include?(result_type)
   $stderr.puts "ERROR: Invalid result type '#{result_type}'"
-  $stderr.puts "Valid options are: ruby-bench, ruby"
+  $stderr.puts "Valid options are: ruby-bench, ruby, mmtk"
   exit 1
 end
 

@@ -12,8 +12,7 @@ class RubyBench
     end
 
     def next_target_date(existing_results)
-      target_dates = @rubies.reject { |_, sha| sha.nil? }.keys.sort.reverse
-      target_dates.find { |date| !existing_results.key?(date) }
+      candidate_dates.find { |date| !existing_results.key?(date) }
     end
 
     def execute(benchmark, opts:, category:, no_pinning:, warmup: nil)
@@ -25,7 +24,7 @@ class RubyBench
       timeout = 10 * 60
       cmd = [
         'docker', 'exec', @current_container, 'bash', '-c',
-        "cd /rubybench/benchmark/ruby-bench && #{env} timeout --signal=KILL #{timeout} ./run_benchmarks.rb #{benchmark} #{category_arg} #{pinning_arg} #{warmup_arg} -e 'ruby #{opts}'",
+        "cd /rubybench/benchmark/ruby-bench && #{env} timeout --signal=KILL #{timeout} ./run_benchmarks.rb #{benchmark} #{category_arg} #{pinning_arg} #{warmup_arg} -e '#{ruby_command(opts)}'",
       ]
       IO.popen(cmd, &:read)
     end
@@ -48,8 +47,24 @@ class RubyBench
 
     private
 
+    def candidate_dates
+      @rubies.reject { |_, sha| sha.nil? }.keys.sort.reverse
+    end
+
+    def container_name(target_date)
+      "rubybench-#{target_date}"
+    end
+
+    def image(target_date)
+      "ghcr.io/ruby/ruby:master-#{@rubies.fetch(target_date)}"
+    end
+
+    def ruby_command(opts)
+      "ruby #{opts}"
+    end
+
     def ensure_container_running(target_date)
-      container = "rubybench-#{target_date}"
+      container = container_name(target_date)
       return if @current_container == container
 
       unless @started_containers.include?(container)
@@ -57,7 +72,7 @@ class RubyBench
         system(
           'docker', 'run', '-d', '--privileged', '--name', container,
           '-v', "#{Dir.pwd}:/rubybench",
-          "ghcr.io/ruby/ruby:master-#{@rubies.fetch(target_date)}",
+          image(target_date),
           'bash', '-c', 'while true; do sleep 100000; done',
           exception: true,
         )

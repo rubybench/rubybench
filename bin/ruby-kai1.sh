@@ -15,7 +15,7 @@ if [[ -z "$RUBYBENCH_RESULTS_REPO" ]]; then
 fi
 
 # Prepare results repository (clean clone)
-bin/prepare-results.rb
+bin/prepare-results.rb || exit 1
 
 # Run ruby-bench
 benchmark/ruby-bench.rb
@@ -33,4 +33,11 @@ for bench in benchmark/ruby/benchmark/*.rb benchmark/ruby/benchmark/*.yml; do
 done
 
 # Sync ruby/ruby benchmark results
-bin/sync-results.rb ruby
+set -x
+bin/sync-results.rb ruby || exit 1
+
+# Run ruby-bench with modular GC and MMTk only after both result sets are uploaded.
+benchmark/ruby-bench.rb --mmtk --results-root results/mmtk
+
+# Sync MMTk ruby-bench results
+bin/sync-results.rb mmtk
