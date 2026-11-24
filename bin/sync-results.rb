@@ -17,16 +17,13 @@ class ResultSyncer
     return puts("Results is not a git repository") unless Dir.exist?("#{@results_dir}/.git")
 
     Dir.chdir(@results_dir) do
-      # Check for changes
       if `git status --porcelain`.empty?
-        puts "No changes to sync"
-        return
+        puts "No changes to commit"
+      else
+        system("git", "add", "-A", exception: true)
+        system("git", "commit", "-m", build_commit_message, exception: true)
       end
-
-      # Commit and push
-      system("git", "add", "-A")
-      system("git", "commit", "-m", build_commit_message)
-      system("git", "push", "origin", @branch)
+      system("git", "push", "origin", @branch, exception: true)
 
       puts "Results pushed"
     end
