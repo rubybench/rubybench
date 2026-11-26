@@ -21,7 +21,8 @@ bin/hocho apply ruby-kai1
 3. The ruby-kai1 server runs a [systemd timer](infra/recipes/files/lib/systemd/system/rubybench.timer).
 4. That timer essentially just keeps executing [bin/ruby-kai1.sh](bin/ruby-kai1.sh).
 5. That script runs a benchmark, updates YAMLs, and pushes it to the rubybench-data repository with bin/sync-results.rb.
-6. As soon as the YAML is pushed, https://github.com/rubybench/rubybench.github.io sees it through GitHub's raw bob.
+6. After the ruby-bench and ruby/ruby results are pushed, the script picks the newest of the last 7 dates in rubies.yml that has a published `ghcr.io/ruby/ruby:master-modular-gc-<sha>` image and no MMTk result. It runs ruby-bench in that image with `RUBY_GC_LIBRARY=mmtk`, writes YAMLs under `results/mmtk/`, and pushes them with `bin/sync-results.rb mmtk`.
+7. As soon as the YAML is pushed, https://github.com/rubybench/rubybench.github.io sees it through GitHub's raw bob.
 
 ## Useful commands
 
